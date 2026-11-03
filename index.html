@@ -341,7 +341,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <p>O Contêiner (tecla C) ocupa duas casas e guarda até 250 itens de um tipo só. Ele recebe pela traseira, de esteira ou de caminhão, e solta pela frente.</p>
       <p>Petróleo: depois de pesquisar Aço e Petróleo, procure as manchas escuras no mapa (as gotas mostram a pureza). O Extrator de petróleo (tecla -) fica exatamente em cima da mancha, usa 15 MW e custa aço e placas de circuito dos seus armazéns e contêineres. Ligue um Cano na saída dele (casa de baixo do lado direito) até uma Refinaria (tecla =), que usa 30 MW e solta plástico na esteira ou combustível num cano, pela porta da frente. Rede de água fica azul, de petróleo fica preta, de combustível fica laranja, e elas não podem se encostar.</p>
       <p>Escritório Operacional (tecla vírgula, liberado na Pesquisa): toque nele e contrate os serviços por R$ 250 por minuto. As máquinas a até 36 casas produzem 25% mais rápido e ganham um selo azul. Máquina sem energia ou sem material continua parada, e sem dinheiro o contrato cai sozinho.</p>
-      <p>Combustível: líquido, não anda em esteira nem em caminhão comum. Leve o cano da refinaria até uma Doca de Fluidos (tecla .), encostada numa rua. O caminhão de combustível enche na doca e entrega no Hub, em armazém ou contêiner, ou numa recepção, de onde o combustível sai por cano. Na ficha, a doca também pode receber de caminhões e soltar por cano. Mais caminhões de combustível: Garagem.</p>
+      <p>Combustível: líquido, não anda em esteira nem em caminhão comum. Leve o cano da refinaria até uma Doca de Fluidos (tecla .), encostada numa rua. O Hub também compra combustível direto por cano, encostado em qualquer lado dele. O caminhão de combustível enche na doca e entrega no Hub, em armazém ou contêiner, ou numa recepção, de onde o combustível sai por cano. Na ficha, a doca também pode receber de caminhões e soltar por cano. Mais caminhões de combustível: Garagem.</p>
       <p>Diesel: 15 minutos depois de pesquisar Petróleo, os caminhões passam a gastar 1 unidade a cada 40 casas. Abaixo de um quarto do tanque, eles desviam sozinhos para o Posto de combustível (tecla ;), encostado numa rua, e depois retomam a rota. Sem diesel, andam a 40% da velocidade. Leve combustível ao posto por cano, caminhão de combustível ou barril em esteira. O Gerador a diesel (tecla ]) recebe do mesmo jeito e dá 15 MW onde não chega carvão.</p>
       <p>Barril de Combustível: na ficha da Doca de Fluidos, escolha Encher barris e ponha uma esteira na porta da frente. Cada barril leva 10 unidades e é um item comum: anda em esteira, em caminhão comum e cabe em contêiner, armazém e recepção. No Hub, vale 10 unidades em preço e nos contratos de combustível.</p>
       <p>Forno Industrial (tecla /, liberado na pesquisa de Aço): ocupa 3×2 casas e tem duas entradas nos cantos de trás, para assar o que combina materiais. O aço é feito nele: leve lingotes de ferro e carvão por uma entrada cada, ou juntos pela mesma. O forno comum não faz mais aço.</p>
@@ -479,7 +479,7 @@ const PREDIOS = {
   montadora: { nome: 'Montadora', preco: 450, desc: 'Ocupa 3×2 casas. Recebe pelas duas portas de trás (qualquer ingrediente em qualquer porta) e solta o produto pela porta da frente, no meio. Escolha a receita na ficha.' },
   expedicao: { nome: 'Expedição', preco: 80, desc: 'Pátio de venda antigo.' },
   unificador:{ nome: 'Unificador', preco: 30, desc: 'Junta até três esteiras numa só. Recebe por trás e pelos lados, com itens de tipos diferentes, e solta um de cada vez pela frente, revezando as entradas.' },
-  hub:       { nome: 'Hub central', preco: 0, desc: 'Centro de distribuição da empresa. Só existe um: escolha bem o lugar. Ocupa 4×4 casas e compra tudo o que chega pelas 4 portas (uma em cada lado, onde ficam as setas) ou de caminhão, por uma rua encostada. É o único lugar que vende.' },
+  hub:       { nome: 'Hub central', preco: 0, desc: 'Centro de distribuição da empresa. Só existe um: escolha bem o lugar. Ocupa 4×4 casas e compra tudo o que chega pelas 4 portas (uma em cada lado, onde ficam as setas) ou de caminhão, por uma rua encostada. Também compra combustível por um cano encostado. É o único lugar que vende.' },
   doca:      { nome: 'Doca de carga', preco: 250, desc: 'Recebe itens da esteira por qualquer lado e vem com um caminhão. O caminhão leva até 300 itens por viagem até o destino ligado a esta doca.' },
   recepcao:  { nome: 'Recepção', preco: 100, desc: 'Recebe a carga do caminhão e solta os itens pela saída, na esteira da frente. Precisa encostar numa rua.' },
   conteiner: { nome: 'Contêiner', preco: 150, desc: 'Ocupa duas casas. Guarda até 250 itens de um tipo só. Entra pela traseira (esteira ou caminhão) e sai pela frente, onde fica a seta.' },
@@ -1749,7 +1749,7 @@ function montarFluidos() {
   }
   for (const b0 of S.predios) {
     if ((b0.t !== 'bomba' && b0.t !== 'cano') || vis.has(b0)) continue;
-    const fila = [b0], nos = [], usinas = new Set(), pocos = new Set(), refinarias = new Set(), portas = new Set(), docas = new Set(), recepcoes = new Set(), tanques = new Set(); let bombas = 0; vis.add(b0);
+    const fila = [b0], nos = [], usinas = new Set(), pocos = new Set(), refinarias = new Set(), portas = new Set(), docas = new Set(), recepcoes = new Set(), tanques = new Set(), hubs = new Set(); let bombas = 0; vis.add(b0);
     while (fila.length) {
       const b = fila.pop();
       nos.push(b);
@@ -1760,13 +1760,15 @@ function montarFluidos() {
         else if (q.t === 'refinaria' && b.t === 'cano') { refinarias.add(q); if (portaRefinaria(q, b)) portas.add(q); }
         else if (q.t === 'docaf' && b.t === 'cano') docas.add(q);
         else if (q.t === 'recepcao' && b.t === 'cano') recepcoes.add(q);
+        else if (q.t === 'hub' && b.t === 'cano') hubs.add(q);
         else if ((q.t === 'posto' || q.t === 'gerador') && b.t === 'cano') tanques.add(q);
         else if (q.t === 'poco' && b.t === 'cano' && saidaPoco(q, b)) pocos.add(q);
         else if ((q.t === 'cano' || q.t === 'bomba') && !vis.has(q)) { vis.add(q); fila.push(q); }
       }
     }
-    const fl = bombas ? 'agua' : pocos.size ? 'petroleo' : portas.size || docas.size ? 'combustivel' : null;
-    const rd = { fl, pocos: [...pocos], refinarias: [...refinarias], portas: [...portas], docas: [...docas], recepcoes: [...recepcoes], tanques: [...tanques], fluxo: 0, usinas: 0 };
+    // recepção encostada também alimenta a rede: o caminhão de combustível descarrega nela e sai por cano
+    const fl = bombas ? 'agua' : pocos.size ? 'petroleo' : portas.size || docas.size || recepcoes.size ? 'combustivel' : null;
+    const rd = { fl, pocos: [...pocos], refinarias: [...refinarias], portas: [...portas], docas: [...docas], recepcoes: [...recepcoes], tanques: [...tanques], hubs: [...hubs], fluxo: 0, usinas: 0 };
     for (const b of nos) { b._fl = fl; b._rd = rd; }
     if (fl === 'combustivel') {
       for (const r of portas) r._rdS = rd;
@@ -1824,8 +1826,12 @@ function fluidos(dt) {
     for (const o of destinos) livre += capTanque(o) - o.tanque;
     const mov = Math.min(disp - prio, livre, VAZAO_COMB * dt - prio), tot = prio + mov;
     if (mov > 0) for (const o of destinos) o.tanque += mov * (capTanque(o) - o.tanque) / livre;
-    if (tot > 0) for (const [o, k] of fontes) o[k] -= tot * (o[k] || 0) / disp;
-    rd.fluxo += (tot / dt * 60 - rd.fluxo) * Math.min(1, dt * 0.15);
+    // o Hub encostado no cano compra o que sobra depois dos tanques, unidade por unidade (conta nos contratos de combustível)
+    const hub = rd.hubs[0], venda = hub ? Math.max(0, Math.min(disp - tot, VAZAO_COMB * dt - tot)) : 0;
+    if (venda > 0) { hub._comb = (hub._comb || 0) + venda; while (hub._comb >= 1) { hub._comb--; vender('combustivel'); } }
+    const sai = tot + venda;
+    if (sai > 0) for (const [o, k] of fontes) o[k] -= sai * (o[k] || 0) / disp;
+    rd.fluxo += (sai / dt * 60 - rd.fluxo) * Math.min(1, dt * 0.15);
   }
 }
 // escritórios: marca as máquinas ao alcance; vários escritórios não somam, cada máquina ganha o bônus uma vez só
@@ -3032,7 +3038,7 @@ function desenharPredio(c, b, cx, cy, s, tm) {
     }
     case 'cano': {
       // liga nos vizinhos do mesmo fluido; sem posição (ícone) fica reto
-      const lig = [0, 1, 2, 3].map(d => { if (b.x == null || !grid) return d % 2 === 0; const q = viz(b, d), fl = b._fl; return !!q && (q.t === 'cano' || q.t === 'bomba' || (q.t === 'usina' && (!fl || fl === 'agua')) || (q.t === 'refinaria' && (portaRefinaria(q, b) ? fl !== 'agua' : !fl || fl === 'petroleo')) || (q.t === 'poco' && saidaPoco(q, b)) || (q.t === 'docaf' && (!fl || fl === 'combustivel')) || (q.t === 'recepcao' && fl === 'combustivel') || ((q.t === 'posto' || q.t === 'gerador') && (!fl || fl === 'combustivel'))); });
+      const lig = [0, 1, 2, 3].map(d => { if (b.x == null || !grid) return d % 2 === 0; const q = viz(b, d), fl = b._fl; return !!q && (q.t === 'cano' || q.t === 'bomba' || (q.t === 'usina' && (!fl || fl === 'agua')) || (q.t === 'refinaria' && (portaRefinaria(q, b) ? fl !== 'agua' : !fl || fl === 'petroleo')) || (q.t === 'poco' && saidaPoco(q, b)) || (q.t === 'docaf' && (!fl || fl === 'combustivel')) || ((q.t === 'recepcao' || q.t === 'hub') && fl === 'combustivel') || ((q.t === 'posto' || q.t === 'gerador') && (!fl || fl === 'combustivel'))); });
       if (!lig.some(Boolean)) { lig[0] = lig[2] = true; }
       c.rotate(-(b.dir || 0) * Math.PI / 2);
       // o atlas de tubos tem as mesmas peças e a mesma orientação do atlas de ruas
