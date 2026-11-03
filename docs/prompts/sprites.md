@@ -169,3 +169,56 @@ Row 4: plastic pellets (white), fuel canister (red), electric cable reel (black 
 4. Água e hidrelétrica.
 5. Petróleo, quando for implementar.
 6. Folha de itens.
+
+---
+
+## 6. Máquinas com boca de entrada e saída do tamanho da esteira
+
+A esteira nova é larga: a faixa escura ocupa cerca de **60% da altura da casa** e os trilhos coloridos vão até a borda.
+A boca das máquinas precisa ter esse mesmo tamanho para a esteira "encaixar".
+
+**Como fazer no ChatGPT:** mande 2 imagens juntas, o sprite atual da máquina (ex.: `assets/maquinas/forno.png`) e uma esteira (ex.: `assets/esteiras/esteira-1-amarela.png`), e cole o bloco abaixo + o trecho da máquina.
+
+### Bloco comum (cole sempre)
+```
+Redesign the first image (my machine sprite) keeping exactly the same art style, colors, outline thickness, top-down orthographic view, aspect ratio and transparent background. Only change the input and output ports so they match the conveyor belt in the second image.
+Port rules:
+- Each port is a wide rectangular opening flush with the outer edge of the sprite, centered on its tile.
+- Port height = 60% of ONE tile (the dark belt width in the second image), with a thin dark grey metal frame and a black-and-yellow hazard trim around it.
+- Inside the port: dark rubber belt (#2a2a2e) with the same horizontal grooves as the conveyor, going about 15% of a tile into the machine, so the conveyor looks like it continues inside.
+- Output port: same size, with a small yellow arrow painted on the frame pointing outward. Input port: no arrow.
+- Remove the old small round connectors on those sides. Keep everything else of the machine (furnace window, pipes, bolts) just shifted slightly toward the center to make room.
+No text, no letters, no logos.
+```
+
+### Forno elétrico — 2×1 (proporção 2:1)
+```
+Machine size: 2 tiles wide, 1 tile tall. Input port on the LEFT edge, output port on the RIGHT edge. Both ports centered vertically. Keep the glowing furnace window in the middle and the round crucible on the right half.
+```
+
+### Prensa — 2×1 (proporção 2:1)
+```
+Machine size: 2 tiles wide, 1 tile tall. Input port on the LEFT edge, output port on the RIGHT edge, both centered vertically. Keep the press hammer block in the middle.
+```
+
+### Usina a carvão — 2×2 (quadrado)
+```
+Machine size: 2x2 tiles. Coal can arrive from any side: add one input port in the middle of EACH of the four sides (centered on one of the two tiles of that side, all four at the same relative position). No output port; keep the water pipe inlet (blue ring) and the lightning panel.
+```
+
+### Montadora — 3×2 (imagem em pé, proporção 2:3)
+```
+Machine size: 2 tiles wide, 3 tiles tall (portrait). Two input ports on the LEFT edge, centered on the top tile and on the bottom tile (none on the middle tile). One output port on the RIGHT edge, centered on the middle tile.
+```
+
+### Contêiner — 2×1 (proporção 2:1)
+```
+Machine size: 2 tiles wide, 1 tile tall. Input port on the LEFT edge, output port on the RIGHT edge, both centered vertically.
+```
+
+### Armazém central — 4×4 (quadrado)
+```
+Machine size: 4x4 tiles. Four input ports along the LEFT edge, one centered on each of the 4 tiles. Four output ports along the RIGHT edge, one centered on each tile.
+```
+
+Dica: se o ChatGPT mudar demais o desenho, peça "keep the original image almost identical, only edit the ports". Se a boca sair pequena, peça "make the ports 60% of the machine height" (para 2×1) ou "60% of half the height" (para 2×2).
