@@ -1508,7 +1508,7 @@ function caminhao(b, c, dt) {
   if (c.angVis == null) c.angVis = c.ang || 0;
   const da = difAng(c.angVis, c.ang || 0), giro = 8 * dt;
   c.angVis += Math.max(-giro, Math.min(giro, da));
-  const dst = destinoDe(b), st0 = c.st;
+  const r0 = rotaDe(b)[0], dst = r0 ? r0.q : null, st0 = c.st;
   switch (c.st) {
     case 'carregando': {
       // só o primeiro caminhão parado carrega; os outros esperam a vez
@@ -1532,7 +1532,7 @@ function caminhao(b, c, dt) {
       // com várias paradas só sai cheio (ou quando o jogador mandar)
       // o caminhão-tanque com várias paradas não espera encher para sempre: sai depois de um tempo com uma carga mínima
       const cansou = (c.esp >= 4 && paradasDe(b).length < 2) || (b.t === 'docaf' && paradasDe(b).length > 1 && (c.naDoca || 0) >= ESPERA_DOCAF && c.carga.length >= MIN_DOCAF);
-      if (vez && c.rota && dst && c.carga.length && (c.carga.length >= capCam(c) || cansou || c.forcar) && (c.forcar || b.t !== 'docaf' || !paradasDe(b).every(paradaLotada))) { if (b.t === 'docaf') b.atend = (b.atend || 0) + 1; c.forcar = false; c.naDoca = 0; c.st = 'ida'; c.p = 0; c.parada = 0; c.entregue = 0; c.fase = null; c.alvo = { x: dst.x, y: dst.y }; }
+      if (vez && c.rota && dst && c.carga.length && (c.carga.length >= capCam(c) || cansou || c.forcar) && (c.forcar || b.t !== 'docaf' || !paradasDe(b).every(paradaLotada))) { if (b.t === 'docaf') b.atend = (b.atend || 0) + 1; c.forcar = false; c.naDoca = 0; c.st = 'ida'; c.p = 0; c.parada = r0.i; c.entregue = 0; c.fase = null; c.sobra = false; c.alvo = { x: dst.x, y: dst.y }; }
       break;
     }
     case 'ida':
@@ -1545,7 +1545,8 @@ function caminhao(b, c, dt) {
     case 'descarregando': {
       const r = c.alvo && dentro(c.alvo.x, c.alvo.y) && grid[c.alvo.y][c.alvo.x];
       const ok = paradaOk(r, b);
-      const voltar =() => { c.st = 'volta'; c.p = 0; c.travado = 0; c.fase = null; c.rota = bfs([c.pos], ruasEncostadas(b)) || [c.pos]; };
+      // a carga que volta sem ser frete de volta é sobra: fica no caminhão e não desce na recepção da doca
+      const voltar = () => { c.sobra = c.fase !== 'pegar' && c.carga.length > 0; c.st = 'volta'; c.p = 0; c.travado = 0; c.fase = null; c.rota = bfs([c.pos], ruasEncostadas(b)) || [c.pos]; };
       c.esp += dt;
       if (c.fase === 'pegar') {
         // frete de volta: carrega o item escolhido no armazém ou contêiner da última parada
@@ -1564,11 +1565,12 @@ function caminhao(b, c, dt) {
       // posto ou gerador cheio numa parada única: volta com a sobra em vez de ficar preso
       if (tanqueDaParada && c.carga.length && lista.length === 1 && (c.travado || 0) > 0.6) { c.sobra = true; voltar(); break; }
       if (ok && c.carga.length && lista.length > 1 && ((c.travado || 0) > 0.6 || (r.t === 'recepcao' && (c.entregue || 0) >= CAP_REC) || (tanqueDaParada && (c.entregue || 0) >= COTA_PARADA))) {
-        const prox = lista[(c.parada || 0) + 1], rota = prox && bfs([c.pos], ruasEncostadas(prox));
         c.entregue = 0;
-        if (rota) { c.parada = (c.parada || 0) + 1; c.alvo = { x: prox.x, y: prox.y }; c.rota = rota; c.p = 0; c.st = 'ida'; c.travado = 0; break; }
-        c.sobra = true; voltar(); break;
+        if (!seguirRota(b, c)) voltar();
+        break;
       }
+      // a parada sumiu (demolida ou trocada) com carga no caminhão: segue a rota em vez de voltar cheio
+      if (!ok && c.carga.length && seguirRota(b, c)) break;
       if (!ok || !c.carga.length) {
         if (ok && b.volta && podeTirar(r, b.volta)) { c.fase = 'pegar'; c.esp = 0; }
         else voltar();
@@ -1639,16 +1641,29 @@ function retomarRota(b, c) {
   const rota = paradaOk(alvo, b) ? bfs([c.pos], ruasEncostadas(alvo)) : null;
   c.retoma = null; c.posto = null; c.p = 0;
   if (rota) { c.st = 'ida'; c.alvo = r.alvo; c.parada = r.parada; c.rota = rota; }
-  else { c.st = 'volta'; c.rota = bfs([c.pos], ruasEncostadas(b)) || [c.pos]; }
+  else if (r.st === 'ida' && c.carga.length && (c.parada = r.parada, seguirRota(b, c))) return;
+  else { if (r.st === 'ida') c.sobra = c.carga.length > 0; c.st = 'volta'; c.rota = bfs([c.pos], ruasEncostadas(b)) || [c.pos]; }
 }
-function paradasDe(b) {
-  const out = [], d = destinoDe(b);
-  if (d) out.push(d);
-  for (const p of b.paradas || []) {
+// paradas válidas da rota, com a posição na lista crua (0 = destino principal, k = b.paradas[k - 1]);
+// uma parada demolida some da rota sem mudar o número das outras
+function rotaDe(b) {
+  const out = [];
+  [b.dest, ...(b.paradas || [])].forEach((p, i) => {
     const q = p && dentro(p.x, p.y) && grid[p.y][p.x];
-    if (paradaOk(q, b)) out.push(q);
-  }
+    if (paradaOk(q, b)) out.push({ q, i });
+  });
   return out;
+}
+function paradasDe(b) { return rotaDe(b).map(o => o.q); }
+// próxima parada da rota que a rua alcança a partir de onde o caminhão está; pula as que ficaram sem caminho
+function seguirRota(b, c) {
+  if (!c.pos) return false;
+  for (const o of rotaDe(b)) {
+    if (o.i <= (c.parada || 0)) continue;
+    const rota = bfs([c.pos], ruasEncostadas(o.q));
+    if (rota) { c.parada = o.i; c.alvo = { x: o.q.x, y: o.q.y }; c.rota = rota; c.p = 0; c.st = 'ida'; c.travado = 0; c.entregue = 0; c.fase = null; return true; }
+  }
+  return false;
 }
 function recepcaoDaDoca(b) {
   for (let d = 0; d < 4; d++) { const q = viz(b, d); if (q && q.t === 'recepcao') return q; }
@@ -3402,13 +3417,25 @@ function desenhar() {
   ctx.save();
   ctx.setLineDash([6, 6]); ctx.lineWidth = 2;
   for (const b of S.predios) if (ehDoca(b)) {
-    const d = destinoDe(b); if (!d || (sel !== b && sel !== d)) continue;
+    const pars = paradasDe(b), d = pars[0]; if (!d || (sel !== b && !pars.includes(sel))) continue;
     ctx.strokeStyle = 'rgba(240,180,41,.9)';
     ctx.beginPath(); ctx.moveTo(b.x * T + T / 2, b.y * T + T / 2);
     const k0 = b.cams.find(k => k.st === 'carregando') || b.cams[0];
     const r = (k0 && k0.rota) || null;
     if (r) for (const t of r) ctx.lineTo(t.x * T + T / 2, t.y * T + T / 2);
     ctx.lineTo(d.x * T + T / 2, d.y * T + T / 2); ctx.stroke();
+    // com várias paradas, numera cada uma na ordem da rota
+    if (pars.length > 1) {
+      ctx.save(); ctx.setLineDash([]); ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const vistos = new Map();
+      pars.forEach((q, n) => {
+        const k = vistos.get(q) || 0; vistos.set(q, k + 1);
+        const x = q.x * T + T / 2 + k * 18, y = q.y * T + 4;
+        ctx.fillStyle = 'rgba(240,180,41,.95)'; ctx.beginPath(); ctx.arc(x, y, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#1b1d1f'; ctx.fillText(String(n + 1), x, y + 1);
+      });
+      ctx.restore();
+    }
   }
   ctx.restore();
   for (const b of S.predios) if (ehDoca(b)) { let n = 0; for (const k of b.cams) desenharCaminhao(ctx, b, k, k.st === 'carregando' ? n++ : 0); }
@@ -3896,7 +3923,7 @@ function atualizarInfo() {
     html += '<p style="margin-top:6px">Com prioridade, tudo vai para o lado escolhido; os outros lados só recebem quando ele enche.</p>';
   } else if (ehDoca(b)) {
     const ESTADO = { carregando: 'Carregando na doca', ida: 'Na estrada, indo', descarregando: 'Descarregando', volta: 'Voltando', garagem: 'Indo para a garagem', entregando: 'Soltando o frete de volta', posto: 'Indo ao posto', abastecendo: 'Abastecendo' };
-    const d = destinoDe(b), k = b.cams.find(q => q.st === 'carregando');
+    const d = paradasDe(b)[0] || null, k = b.cams.find(q => q.st === 'carregando');
     let sit = k ? ESTADO[k.st] : 'Todos os caminhões na rua';
     if (b.t === 'docaf' && b.modo !== 'carga') sit = 'Caminhão parado na doca';
     else if (k) sit = !d ? 'Parado, sem destino' : !ruasEncostadas(b).length ? 'Falta rua encostada na doca' : !ruasEncostadas(d).length ? 'Falta rua encostada no destino' : !k.rota ? 'As ruas não se ligam' : sit;
@@ -3915,8 +3942,9 @@ function atualizarInfo() {
     if (presos.length) html += `<p style="color:var(--perigo)">${presos.length === 1 ? 'Um caminhão está esperando' : presos.length + ' caminhões estão esperando'} com carga que o destino não aceita agora.</p><div class="acoes"><button class="btn" id="i-voltar">Voltar com a carga</button><button class="btn perigo" id="i-descartar">Descartar carga</button></div>`;
     html += `<div class="acoes"><button class="btn" id="i-partir" ${k && k.carga.length && k.rota ? '' : 'disabled'}>Partir agora</button></div>`;
     html += `<div class="acoes"><button class="btn" id="i-cam-mais" ${b.cams.length < MAX_CAM ? '' : 'disabled'}>+ Caminhão</button><button class="btn" id="i-cam-menos" ${b.cams.length > 1 ? '' : 'disabled'}>− Para garagem</button></div>`;
-    const pars = paradasDe(b);
-    html += `<h3>Rota do ${nomeCam(b)} (até 4 paradas)</h3>` +(pars.length ? pars.map((q, i) => `<div class="linha-buf"><span>${i + 1}. ${PREDIOS[q.t].nome}</span>${i ? `<button class="btn mini" data-tira="${i - 1}" title="Tirar parada">×</button>` : '<b>principal</b>'}</div>`).join('') : '<p>Sem destino.</p>');
+    // o × tira pela posição na lista crua, para não errar de parada quando alguma foi demolida
+    const rotaV = rotaDe(b), pars = rotaV.map(o => o.q);
+    html += `<h3>Rota do ${nomeCam(b)} (até 4 paradas)</h3>` +(rotaV.length ? rotaV.map((o, n) => `<div class="linha-buf"><span>${n + 1}. ${PREDIOS[o.q.t].nome}</span>${o.i ? `<button class="btn mini" data-tira="${o.i - 1}" title="Tirar parada">×</button>` : '<b>principal</b>'}</div>`).join('') : '<p>Sem destino.</p>');
     html += '<p style="margin-top:6px">O caminhão entrega até 20 itens em cada recepção (hub, armazém e contêiner recebem até recusar), segue para a próxima parada e, depois da última, volta com o que sobrou.</p>';
     html += `<div class="acoes"><button class="btn" id="i-ligar">${ligando === b && !ligandoAdd ? 'Toque no destino…' : 'Trocar destino'}</button><button class="btn" id="i-parada" ${d && pars.length < 4 ? '' : 'disabled'}>${ligando === b && ligandoAdd ? 'Toque na parada…' : '+ Parada'}</button></div>`;
     if (b.t === 'doca') html += '<h3>Frete de volta</h3>' + `<div class="linha-buf" style="align-items:center"><span>Trazer da última parada</span>${seletorItem('doca-volta', opsItem(VAZIO_VOLTA), b.volta)}</div>`;
@@ -4003,7 +4031,7 @@ function atualizarInfo() {
   const ld = $('i-lado'); if (ld) ld.onclick = () => { b.lado = b.lado === 1 ? 3 : 1; atualizarInfo(); };
   for (let l = 0; l < 4; l++) { const el = $('saida-' + l); if (el) el.onclick = () => abrirLista(el, opsSaida(b), b.saidas[l], v => { b.saidas[l] = v; }); }
   const presos = () => b.cams.filter(q => q.st === 'descarregando' && (q.travado || 0) > 1);
-  const vt = $('i-voltar'); if (vt) vt.onclick = () => { for (const k of presos()) { k.st = 'volta'; k.p = 0; k.travado = 0; k.rota = bfs([k.pos], ruasEncostadas(b)) || [k.pos]; } atualizarInfo(); };
+  const vt = $('i-voltar'); if (vt) vt.onclick = () => { for (const k of presos()) { k.st = 'volta'; k.sobra = k.carga.length > 0; k.p = 0; k.travado = 0; k.rota = bfs([k.pos], ruasEncostadas(b)) || [k.pos]; } atualizarInfo(); };
   const dc = $('i-descartar'); if (dc) dc.onclick = () => { for (const k of presos()) k.carga = []; atualizarInfo(); };
   const pt = $('i-partir'); if (pt) pt.onclick = () => { const k = b.cams.find(q => q.st === 'carregando'); if (k) k.forcar = true; };
   const cm = $('i-cam-mais'); if (cm) cm.onclick = () => { pedirCaminhao(b); atualizarInfo(); };
@@ -4073,7 +4101,10 @@ cv.addEventListener('pointerdown', e => {
   if (ligando && e.button === 0) {
     const t = tileEm(p.x, p.y), r = grid[t.y] && grid[t.y][t.x], mot = motivoParada(ligando, r);
     if (!mot) {
-      if (ligandoAdd && ligando.dest) { ligando.paradas = (ligando.paradas || []).concat([{ x: r.x, y: r.y }]).slice(0, 3); avisar('Parada adicionada à rota.', true); }
+      // paradas demolidas saem da lista antes, para não ocupar a vaga da nova; repetir a última parada não adianta nada
+      const ultima = paradasDe(ligando).slice(-1)[0];
+      if (ligandoAdd && ligando.dest && ultima === r) avisar('Essa já é a última parada da rota.', false, 2500);
+      else if (ligandoAdd && ligando.dest) { ligando.paradas = (ligando.paradas || []).filter(p => paradaOk(dentro(p.x, p.y) && grid[p.y][p.x], ligando)).concat([{ x: r.x, y: r.y }]).slice(0, 3); avisar('Parada adicionada à rota.', true); }
       else { ligando.dest = { x: r.x, y: r.y }; avisar('Rota do caminhão definida.', true); }
       selecionar(ligando.x, ligando.y);
     }
