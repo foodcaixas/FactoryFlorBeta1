@@ -73,6 +73,9 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
 #config h3 { margin: 0 0 4px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mudo); font-weight: 600; }
 .vol { display: grid; grid-template-columns: 72px 1fr 40px; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; }
 .vol input { width: 100%; margin: 0; accent-color: var(--seguranca); cursor: pointer; }
+.chk { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; cursor: pointer; }
+.chk input { width: 16px; height: 16px; margin: 0; accent-color: var(--seguranca); cursor: pointer; }
+.chk output { margin-left: auto; font-family: var(--f-num); font-size: 12px; color: var(--mudo); }
 .vol output { font-family: var(--f-num); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
 #b-alerta, #b-pesq { font-family: var(--f-num); font-size: 13px; white-space: nowrap; }
 #b-alerta.tem { color: var(--perigo); border-color: var(--perigo); }
@@ -299,6 +302,9 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
     <h3>Volume</h3>
     <label class="vol"><span>Máquinas</span><input type="range" id="vol-maquinas" min="0" max="100" step="5"><output id="vol-maquinas-v"></output></label>
     <label class="vol"><span>Vento</span><input type="range" id="vol-vento" min="0" max="100" step="5"><output id="vol-vento-v"></output></label>
+    <h3 style="margin-top:10px">Ambiente</h3>
+    <label class="chk"><input type="checkbox" id="amb-dia"><span>Dia e noite</span><output id="amb-hora"></output></label>
+    <label class="chk"><input type="checkbox" id="amb-vida"><span>Fumaça, pássaros, barcos e animais</span></label>
   </div>
   <div id="mapa" class="placa"><canvas id="mini" width="128" height="88" aria-label="Minimapa"></canvas>
     <div class="linha"><span>Mapa</span><button class="btn" id="b-fluxo" aria-pressed="false" title="Camada de fluxo das esteiras (O)">Fluxo</button></div></div>
@@ -365,6 +371,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <p>Barril de Combustível: na ficha da Doca de Fluidos, escolha Encher barris e ponha uma esteira na porta da frente. Cada barril leva 10 unidades e é um item comum: anda em esteira, em caminhão comum e cabe em contêiner, armazém e recepção. No Hub, vale 10 unidades em preço e nos contratos de combustível.</p>
       <p>Forno Industrial (tecla /, liberado na pesquisa de Aço): ocupa 3×2 casas e tem duas entradas nos cantos de trás, para assar o que combina materiais. O aço é feito nele: leve lingotes de ferro e carvão por uma entrada cada, ou juntos pela mesma. O forno comum não faz mais aço.</p>
       <p>Indústria de Defesa (Pesquisa, depois de Placa de circuito): a Prensa faz peças usinadas (de aço), estojos metálicos (de lingote de cobre) e pólvora (de minério de enxofre, as jazidas amarelas, direto do extrator) e a Montadora faz componentes de armas e munição. Entregue na Central Militar (tecla [; R gira), pelos 3 portões com seta ou de caminhão. Ela paga mais que o Hub e traz contratos próprios: atrasar custa uma multa leve e o bônus, mas o contrato continua aberto.</p>
+      <p>Ambiente: o dia passa em uns 9 minutos de jogo. À noite a tela escurece e só ficam claros os postes, o Hub, as máquinas trabalhando e os faróis dos caminhões. Máquina que solta fumaça, vapor ou faísca está trabalhando; parada, fica quieta. Pássaros pousam nos cantos livres e fogem dos caminhões, barcos descem o rio e vacas e cavalos pastam nos lotes à venda até você comprar. Nada disso muda o jogo e dá para desligar em Configurações.</p>
       <div class="acoes">
         <button class="btn perigo" id="b-novo">Novo jogo</button>
         <button class="btn" id="b-dev">Modo DEV</button>
@@ -3605,6 +3612,7 @@ function desenharCaminhao(c, b, k, fila) {
     x = b.x * T + T / 2; y = b.y * T + T / 2;
   }
   if (k.pos) { x += -Math.sin(ang) * 4; y += Math.cos(ang) * 4; } // mão direita
+  amb.cams.push({ x, y, ang });
   if (fila) { x -= Math.cos(ang) * 14 * fila; y -= Math.sin(ang) * 14 * fila; } // esperando a vez na doca
   const img = k.tipo ? imgCamF : imgCam;
   const L = T * 1.75, A = L * img.height / (img.width || 1);
@@ -3735,6 +3743,7 @@ function desenhar() {
   ctx.setTransform(dpr * Z, 0, 0, dpr * Z, -cam.x * dpr * Z, -cam.y * dpr * Z);
   const vx1 = cam.x + w / Z, vy1 = cam.y + h / Z;
   for (const q of chao) if (q.x < vx1 && q.x + q.w > cam.x && q.y < vy1 && q.y + q.h > cam.y) ctx.drawImage(q.cv, q.x, q.y);
+  ambRio(ctx, cam.x, cam.y, vx1, vy1);
   // prédios partem da casa 0,0: a Central tem 6 casas e, girada, essa casa pode ser qualquer canto dela
   const x0 = Math.floor(cam.x / T) - 6, y0 = Math.floor(cam.y / T) - 6;
   const x1 = Math.ceil((cam.x + w / Z) / T) + 6, y1 = Math.ceil((cam.y + h / Z) / T) + 6;
@@ -3885,6 +3894,7 @@ function desenhar() {
   }
   // itens parados no divisor
   for (const b of S.predios) if (b.t === 'divisor' && b.fila.length && vis(b)) desenharItem(ctx, b.fila[0].i, b.x * T + T / 2, b.y * T + T / 2, 5);
+  ambMeio(ctx);
 
   // lotes que ainda não são do jogador
   for (let l = 0; l < LCOLS * LROWS; l++) {
@@ -3898,6 +3908,8 @@ function desenhar() {
     ctx.fillStyle = '#9da19b'; ctx.font = '600 9px "IBM Plex Sans", sans-serif'; ctx.fillText('LOTE À VENDA', cx, cy - 7);
     ctx.fillStyle = '#f0b429'; ctx.font = '600 12px "IBM Plex Mono", monospace'; ctx.fillStyle = loteVizinho(l) ? '#f0b429' : '#6f736d'; ctx.fillText(reais(precoLote(l)), cx, cy + 7);
   }
+  ambBichos(ctx);
+  ambNoite(ctx, w, h);
   const ret = areaArr ? { x0: Math.min(areaArr.x0, areaArr.x1), y0: Math.min(areaArr.y0, areaArr.y1), x1: Math.max(areaArr.x0, areaArr.x1), y1: Math.max(areaArr.y0, areaArr.y1) } : sel && sel.t === 'area' ? sel : null;
   if (ret) {
     ctx.fillStyle = 'rgba(110,190,230,.16)'; ctx.fillRect(ret.x0 * T, ret.y0 * T, (ret.x1 - ret.x0 + 1) * T, (ret.y1 - ret.y0 + 1) * T);
@@ -3950,6 +3962,380 @@ function desenhar() {
       ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 1.5; ctx.strokeRect(hover.x * T + 1, hover.y * T + 1, T - 2, T - 2);
     }
   }
+}
+
+// ---------- ambiente vivo: dia e noite, fumaça, pássaros, barcos e animais (só visual, nada disso é salvo) ----------
+const CICLO = 540; // segundos de jogo por dia completo
+let ambCfg = { dia: true, vida: true };
+try { const s = JSON.parse(localStorage.getItem(CHAVE + '-amb') || 'null'); if (s) ambCfg = { ...ambCfg, ...s }; } catch (e) {}
+const amb = {
+  t: 40, vista: { x0: 0, y0: 0, x1: 0, y1: 0 }, cams: [], fontes: [], fontesT: 0,
+  fum: [], fais: [], bandos: [], bandoT: 6, barcos: [], barcoT: 20, bichos: new Map(), bichosSeed: null, rioCx: null, rioSeed: null,
+};
+const rnd = Math.random;
+// 0 = dia claro, 1 = noite fechada
+function ambEscuro() {
+  if (!ambCfg.dia) return 0;
+  const p = (amb.t % CICLO) / CICLO, liso = v => v * v * (3 - 2 * v);
+  if (p < 0.55) return 0;
+  if (p < 0.65) return liso((p - 0.55) / 0.1);
+  if (p < 0.88) return 1;
+  return 1 - liso((p - 0.88) / 0.12);
+}
+function ambEhNoite() { return ambEscuro() > 0.5; }
+// brilho redondo usado para luzes e faróis
+const brilho = (() => {
+  const cv2 = document.createElement('canvas'); cv2.width = cv2.height = 64;
+  const c = cv2.getContext('2d'), g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.45, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = g; c.fillRect(0, 0, 64, 64); return cv2;
+})();
+const brilhoQ = (() => {
+  const cv2 = document.createElement('canvas'); cv2.width = cv2.height = 64;
+  const c = cv2.getContext('2d'), g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,214,140,1)'); g.addColorStop(0.5, 'rgba(255,170,70,.35)'); g.addColorStop(1, 'rgba(255,150,50,0)');
+  c.fillStyle = g; c.fillRect(0, 0, 64, 64); return cv2;
+})();
+const luzCv = document.createElement('canvas'), luzCtx = luzCv.getContext('2d');
+
+// centro do rio em cada linha (px), para os barcos seguirem a correnteza
+function rioCentro() {
+  if (amb.rioCx && amb.rioSeed === S.seed) return amb.rioCx;
+  const cx = [];
+  for (let y = 0; y < H; y++) { let s = 0, n = 0; for (let x = 0; x < W; x++) if (rio[y][x]) { s += x; n++; } cx.push(n ? (s / n + 0.5) * T : null); }
+  amb.rioCx = cx; amb.rioSeed = S.seed; return cx;
+}
+function rioEm(yp) {
+  const cx = rioCentro(), y = Math.max(0, Math.min(H - 1.001, yp / T - 0.5)), i = Math.floor(y), f = y - i;
+  const a = cx[i], b = cx[Math.min(H - 1, i + 1)];
+  if (a == null || b == null) return null;
+  return { x: a + (b - a) * f, ang: Math.atan2(T, (cx[Math.min(H - 1, i + 2)] ?? b) - (cx[Math.max(0, i - 1)] ?? a)) };
+}
+
+// casa livre (sem prédio, rio ou ponte) onde um pássaro pode pousar
+function chaoLivre(x, y) { return dentro(x, y) && !grid[y][x] && !rio[y][x] && !(elev && elev[y][x]); }
+
+function ambBichosDoLote(l) {
+  if (amb.bichosSeed !== S.seed) { amb.bichos = new Map(); amb.bichosSeed = S.seed; }
+  if (amb.bichos.has(l)) return amb.bichos.get(l);
+  const r = rng((S.seed ^ (l * 7919)) + 99), lista = [];
+  if (r() < 0.6) {
+    const tipo = r() < 0.6 ? 'vaca' : 'cavalo', n = 1 + Math.floor(r() * 4);
+    const lx = (l % LCOLS) * LOTE_W, ly = Math.floor(l / LCOLS) * LOTE_H;
+    for (let i = 0, tent = 0; i < n && tent < 40; tent++) {
+      const x = lx + 1 + r() * (LOTE_W - 2), y = ly + 1 + r() * (LOTE_H - 2);
+      if (!dentro(Math.floor(x), Math.floor(y)) || rio[Math.floor(y)][Math.floor(x)] || ambNaPlaca(l, x, y)) continue;
+      lista.push({ tipo, x: x * T, y: y * T, ang: r() * Math.PI * 2, alvo: null, pausa: r() * 8, fase: r() * 9, cor: Math.floor(r() * 3), a: 1, l });
+      i++;
+    }
+  }
+  amb.bichos.set(l, lista); return lista;
+}
+// a plaquinha de preço fica no meio do lote; os bichos não pastam em cima dela
+function ambNaPlaca(l, x, y) {
+  const cx = (l % LCOLS) * LOTE_W + LOTE_W / 2, cy = Math.floor(l / LCOLS) * LOTE_H + LOTE_H / 2;
+  return Math.abs(x - cx) < 2.6 && Math.abs(y - cy) < 1.4;
+}
+
+function ambPasso(dt) {
+  amb.t += dt;
+  if (!ambCfg.vida || !S) { amb.fum.length = 0; amb.fais.length = 0; amb.bandos.length = 0; amb.barcos.length = 0; return; }
+  const v = amb.vista;
+  // máquinas visíveis que soltam fumaça ou acendem à noite
+  amb.fontesT -= dt;
+  if (amb.fontesT <= 0) {
+    amb.fontesT = 0.25; amb.fontes = [];
+    const m = 4 * T;
+    for (const b of S.predios) {
+      if (b.t === 'esteira' || b.t === 'rua' || b.t === 'cano' || b.t === 'cerca' || b.t === 'barreira') continue;
+      const px = b.x * T, py = b.y * T;
+      if (px < v.x0 - m || px > v.x1 + m || py < v.y0 - m || py > v.y1 + m) continue;
+      const c = centroDe(b);
+      amb.fontes.push({ b, x: c.x, y: c.y });
+    }
+  }
+  if (dt > 0) for (const f of amb.fontes) {
+    const b = f.b;
+    if (b.t === 'usina' && b.comb > 0) {
+      // chaminé do sprite (casa 0,0 girada no centro do 2×2)
+      const a = (b.dir || 0) * Math.PI / 2, lx = 26.7 - 16, ly = -2.9 - 16;
+      const x = b.x * T + 32 + lx * Math.cos(a) - ly * Math.sin(a), y = b.y * T + 32 + lx * Math.sin(a) + ly * Math.cos(a);
+      if (rnd() < dt * 5) ambFumaca(x, y, 'fumaca');
+      if (b._agua && rnd() < dt * 4) ambFumaca(f.x - 10 + rnd() * 20, f.y + 6, 'vapor');
+    } else if ((b.t === 'forno' || b.t === 'fornoind') && b.trab) {
+      if (rnd() < dt * (b.t === 'fornoind' ? 5 : 3)) ambFumaca(f.x + (rnd() - 0.5) * 10, f.y + (rnd() - 0.5) * 10, 'fumaca');
+    } else if (b.t === 'gerador' && b.tanque > 0) {
+      if (rnd() < dt * 3) ambFumaca(f.x + 8, f.y - 10, 'diesel');
+    } else if (b.t === 'refinaria' && b.trab) {
+      if (rnd() < dt * 3) ambFumaca(f.x + (rnd() - 0.5) * 30, f.y - 8, 'vapor');
+    } else if (b.t === 'prensa' && b.trab && rnd() < dt * 2.2) {
+      // faísca em rajadas curtas quando a prensa bate
+      for (let i = 0; i < 4 + rnd() * 4; i++) {
+        const a = rnd() * Math.PI * 2, s = 25 + rnd() * 45;
+        if (amb.fais.length < 200) amb.fais.push({ x: f.x, y: f.y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, vida: 0, max: 0.25 + rnd() * 0.25 });
+      }
+    }
+  }
+  for (const p of amb.fum) { p.vida += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx += Math.sin(amb.t * 0.7 + p.s) * 2 * dt; }
+  amb.fum = amb.fum.filter(p => p.vida < p.max);
+  for (const p of amb.fais) { p.vida += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 1 - 3 * dt; p.vy *= 1 - 3 * dt; }
+  amb.fais = amb.fais.filter(p => p.vida < p.max);
+  ambPassoBandos(dt);
+  ambPassoBarcos(dt);
+  ambPassoBichos(dt);
+}
+function ambFumaca(x, y, tipo) {
+  if (amb.fum.length > 420) return;
+  const d = tipo === 'vapor' ? { max: 1.8, r0: 3, r1: 11, a: 0.5 } : tipo === 'diesel' ? { max: 2.2, r0: 2, r1: 9, a: 0.45 } : { max: 3.4, r0: 3.5, r1: 15, a: 0.38 };
+  amb.fum.push({ x, y, vx: 6 + rnd() * 5, vy: -9 - rnd() * 6, vida: 0, s: rnd() * 6, tipo, ...d });
+}
+
+function ambPassoBandos(dt) {
+  if (dt <= 0) return;
+  const v = amb.vista, w = v.x1 - v.x0, h = v.y1 - v.y0;
+  amb.bandoT -= dt;
+  if (amb.bandoT <= 0 && amb.bandos.length < 3) {
+    amb.bandoT = 14 + rnd() * 18;
+    // nasce fora da tela e cruza a vista
+    const lado = Math.floor(rnd() * 4), m = 3 * T;
+    const x = lado === 0 ? v.x0 - m : lado === 2 ? v.x1 + m : v.x0 + rnd() * w;
+    const y = lado === 1 ? v.y0 - m : lado === 3 ? v.y1 + m : v.y0 + rnd() * h;
+    const tx = v.x0 + w * (0.2 + rnd() * 0.6), ty = v.y0 + h * (0.2 + rnd() * 0.6), a = Math.atan2(ty - y, tx - x);
+    const n = 4 + Math.floor(rnd() * 6), aves = [];
+    for (let i = 0; i < n; i++) aves.push({ dx: (rnd() - 0.5) * 50, dy: (rnd() - 0.5) * 50, fase: rnd() * 7, px: 0, py: 0 });
+    const b = { x, y, ang: a, vel: 3.5 * T, alt: 1, est: 'voo', aves, t: 0, alvo: null };
+    // metade dos bandos procura um canto livre para pousar
+    if (rnd() < 0.6) {
+      for (let k = 0; k < 20; k++) {
+        const cx = Math.floor((tx + (rnd() - 0.5) * 6 * T) / T), cy = Math.floor((ty + (rnd() - 0.5) * 6 * T) / T);
+        if (chaoLivre(cx, cy) && chaoLivre(cx + 1, cy) && chaoLivre(cx, cy + 1) && chaoLivre(cx + 1, cy + 1)) { b.alvo = { x: (cx + 1) * T, y: (cy + 1) * T }; break; }
+      }
+    }
+    amb.bandos.push(b);
+  }
+  for (const b of amb.bandos) {
+    b.t += dt;
+    if (b.est === 'voo' && b.alvo) {
+      const d = Math.hypot(b.alvo.x - b.x, b.alvo.y - b.y);
+      b.ang = Math.atan2(b.alvo.y - b.y, b.alvo.x - b.x);
+      if (d < 3 * T) b.alt = Math.max(0, d / (3 * T));
+      if (d < 4) { b.est = 'chao'; b.alt = 0; b.t = 0; b.fica = 15 + rnd() * 25; }
+    }
+    if (b.est === 'chao') {
+      // foge de caminhão perto, de prédio novo em cima ou quando cansa de ciscar
+      const susto = amb.cams.some(k => Math.hypot(k.x - b.x, k.y - b.y) < 3.5 * T) || !chaoLivre(Math.floor(b.x / T), Math.floor(b.y / T)) || !chaoLivre(Math.floor(b.x / T) - 1, Math.floor(b.y / T) - 1);
+      if (susto || b.t > b.fica) { b.est = 'fuga'; b.alvo = null; b.ang = rnd() * Math.PI * 2; b.t = 0; b.vel = (susto ? 5 : 3.5) * T; }
+      else for (const a of b.aves) if (rnd() < dt * 0.5) { a.dx += (rnd() - 0.5) * 8; a.dy += (rnd() - 0.5) * 8; a.dx = Math.max(-22, Math.min(22, a.dx)); a.dy = Math.max(-22, Math.min(22, a.dy)); }
+      continue;
+    }
+    if (b.est === 'fuga') b.alt = Math.min(1, b.alt + dt * 1.5);
+    const vel = b.est === 'voo' && b.alvo ? b.vel * (0.4 + 0.6 * b.alt) : b.vel;
+    b.x += Math.cos(b.ang) * vel * dt; b.y += Math.sin(b.ang) * vel * dt;
+  }
+  const m = 12 * T;
+  amb.bandos = amb.bandos.filter(b => b.est === 'chao' || b.t < 3 || (b.x > v.x0 - m && b.x < v.x1 + m && b.y > v.y0 - m && b.y < v.y1 + m));
+}
+
+function ambPassoBarcos(dt) {
+  if (dt <= 0) return;
+  amb.barcoT -= dt;
+  if (amb.barcoT <= 0 && amb.barcos.length < 2) {
+    amb.barcoT = 45 + rnd() * 60;
+    const balsa = rnd() < 0.35;
+    amb.barcos.push({ y: -2 * T, tipo: balsa ? 'balsa' : 'pesca', vel: (balsa ? 0.35 : 0.55) * T, lado: (rnd() - 0.5) * 0.5 * T, fase: rnd() * 6, cor: Math.floor(rnd() * 3) });
+  }
+  for (const b of amb.barcos) b.y += b.vel * dt;
+  amb.barcos = amb.barcos.filter(b => b.y < (H + 2) * T);
+}
+
+function ambPassoBichos(dt) {
+  if (dt <= 0) return;
+  for (let l = 0; l < LCOLS * LROWS; l++) {
+    if (S.lotes[l] && !amb.bichos.has(l)) continue;
+    const lista = ambBichosDoLote(l);
+    if (!lista.length) continue;
+    const lx = (l % LCOLS) * LOTE_W, ly = Math.floor(l / LCOLS) * LOTE_H;
+    for (const a of lista) {
+      if (S.lotes[l]) { a.a -= dt / 1.5; continue; } // lote comprado: os bichos vão embora
+      if (a.pausa > 0) { a.pausa -= dt; continue; }
+      if (!a.alvo) {
+        const x = lx + 1 + rnd() * (LOTE_W - 2), y = ly + 1 + rnd() * (LOTE_H - 2);
+        if (!dentro(Math.floor(x), Math.floor(y)) || rio[Math.floor(y)][Math.floor(x)] || ambNaPlaca(l, x, y)) { a.pausa = 1; continue; }
+        a.alvo = { x: x * T, y: y * T };
+        if (Math.hypot(a.alvo.x - a.x, a.alvo.y - a.y) > 4 * T) a.alvo = { x: a.x + (a.alvo.x - a.x) * 0.4, y: a.y + (a.alvo.y - a.y) * 0.4 };
+      }
+      const dx = a.alvo.x - a.x, dy = a.alvo.y - a.y, d = Math.hypot(dx, dy), s = (a.tipo === 'cavalo' ? 0.45 : 0.28) * T * dt;
+      const alvoAng = Math.atan2(dy, dx); let da = alvoAng - a.ang; while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2;
+      a.ang += Math.max(-dt * 2, Math.min(dt * 2, da));
+      if (d <= s) { a.alvo = null; a.pausa = 4 + rnd() * 12; }
+      else if (Math.abs(da) < 0.6) { a.x += dx / d * s; a.y += dy / d * s; }
+    }
+    if (S.lotes[l] && lista.every(a => a.a <= 0)) amb.bichos.set(l, []);
+  }
+}
+
+// ---- desenho ----
+// rio com brilho correndo e barcos (logo depois do chão: pontes e caminhões passam por cima)
+function ambRio(c, x0, y0, x1, y1) {
+  amb.vista = { x0, y0, x1, y1 }; amb.cams.length = 0;
+  if (!ambCfg.vida) return;
+  const cx0 = Math.max(0, Math.floor(x0 / T)), cy0 = Math.max(0, Math.floor(y0 / T)), cx1 = Math.min(W - 1, Math.ceil(x1 / T)), cy1 = Math.min(H - 1, Math.ceil(y1 / T));
+  c.save(); c.strokeStyle = 'rgba(225,245,255,.55)'; c.lineWidth = 1.4; c.lineCap = 'round';
+  c.beginPath();
+  for (let y = cy0; y <= cy1; y++) for (let x = cx0; x <= cx1; x++) {
+    if (!rio[y][x]) continue;
+    for (let k = 0; k < 2; k++) {
+      const h = hash2(x, y, 71 + k), f = (relogio * 0.32 + h) % 1, px = x * T + 5 + hash2(x, y, 13 + k) * (T - 16), py = y * T + f * T;
+      const len = 4 + 6 * Math.sin(f * Math.PI);
+      c.moveTo(px, py); c.lineTo(px + 1.5, py + len);
+    }
+  }
+  c.globalAlpha = 0.6; c.stroke();
+  c.restore();
+  for (const b of amb.barcos) {
+    const r = rioEm(b.y); if (!r) continue;
+    const x = r.x + b.lado + Math.sin(amb.t * 0.4 + b.fase) * 3, y = b.y;
+    if (x < x0 - 60 || x > x1 + 60 || y < y0 - 60 || y > y1 + 60) continue;
+    desenharBarco(c, b, x, y, r.ang);
+  }
+}
+function desenharBarco(c, b, x, y, ang) {
+  c.save(); c.translate(x, y); c.rotate(ang);
+  // esteira de água atrás
+  c.strokeStyle = 'rgba(235,248,255,.5)'; c.lineWidth = 1.5;
+  const L = b.tipo === 'balsa' ? 26 : 16;
+  for (let i = 1; i <= 3; i++) { const k = (amb.t * 1.2 + i / 3) % 1; c.globalAlpha = 0.6 * (1 - k); c.beginPath(); c.moveTo(-L - k * 20, -4 - k * 9); c.lineTo(-L + 2, 0); c.lineTo(-L - k * 20, 4 + k * 9); c.stroke(); }
+  c.globalAlpha = 1;
+  c.fillStyle = 'rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(2, 3, L + 2, b.tipo === 'balsa' ? 12 : 7, 0, 0, Math.PI * 2); c.fill();
+  c.strokeStyle = '#1b1d1f'; c.lineWidth = 1.5;
+  if (b.tipo === 'balsa') {
+    c.fillStyle = '#6f777d'; rrect(c, -24, -11, 48, 22, 4); c.fill(); c.stroke();
+    c.fillStyle = '#9aa3a8'; rrect(c, -20, -8, 40, 16, 2); c.fill();
+    c.strokeStyle = '#f0b429'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(-20, -8.5); c.lineTo(20, -8.5); c.moveTo(-20, 8.5); c.lineTo(20, 8.5); c.stroke();
+    c.fillStyle = '#e9e5da'; c.strokeStyle = '#1b1d1f'; rrect(c, 10, -6, 10, 12, 2); c.fill(); c.stroke();
+    c.fillStyle = ['#c9362a', '#2f6fb0', '#e9e5da'][b.cor]; rrect(c, -16, -5, 16, 10, 2); c.fill(); c.stroke(); // carga em cima da balsa
+  } else {
+    c.fillStyle = ['#8a5a35', '#2f6fb0', '#c9362a'][b.cor];
+    c.beginPath(); c.moveTo(16, 0); c.quadraticCurveTo(8, -7, -12, -6); c.lineTo(-14, 0); c.lineTo(-12, 6); c.quadraticCurveTo(8, 7, 16, 0); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = '#d8c39a'; c.beginPath(); c.moveTo(11, 0); c.quadraticCurveTo(6, -4, -9, -3.6); c.lineTo(-9, 3.6); c.quadraticCurveTo(6, 4, 11, 0); c.fill();
+    c.fillStyle = '#e8b04a'; c.beginPath(); c.arc(-3, 0, 3.2, 0, Math.PI * 2); c.fill(); c.stroke(); // pescador de chapéu
+    c.strokeStyle = 'rgba(30,30,30,.6)'; c.lineWidth = 0.8; c.beginPath(); c.moveTo(-3, 0); c.lineTo(-2, -16 - Math.sin(amb.t * 2) * 2); c.stroke(); // vara de pesca
+  }
+  c.restore();
+}
+
+// fumaça e pássaros no chão (por cima das máquinas, por baixo da noite)
+function ambMeio(c) {
+  if (!ambCfg.vida) return;
+  for (const p of amb.fum) {
+    const k = p.vida / p.max, r = p.r0 + (p.r1 - p.r0) * k, a = p.a * (k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85);
+    c.fillStyle = p.tipo === 'vapor' ? `rgba(245,248,250,${a})` : p.tipo === 'diesel' ? `rgba(60,60,62,${a})` : `rgba(128,128,124,${a})`;
+    c.beginPath(); c.arc(p.x, p.y, r, 0, Math.PI * 2); c.fill();
+  }
+  for (const b of amb.bandos) if (b.est === 'chao' || b.alt < 0.15) desenharAves(c, b, false);
+}
+
+// bichos pastando nos lotes que ainda não são do jogador
+function ambBichos(c) {
+  if (!ambCfg.vida) return;
+  const v = amb.vista;
+  for (const lista of amb.bichos.values()) for (const a of lista) {
+    if (a.a <= 0 || a.x < v.x0 - 30 || a.x > v.x1 + 30 || a.y < v.y0 - 30 || a.y > v.y1 + 30) continue;
+    c.save(); c.globalAlpha = Math.max(0, Math.min(1, a.a)); c.translate(a.x, a.y); c.rotate(a.ang);
+    const pasta = a.pausa > 0 ? Math.sin(amb.t * 3 + a.fase) * 1.2 : 0, passo = a.alvo && a.pausa <= 0 ? Math.sin(amb.t * 8 + a.fase) * 1 : 0;
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(2, 3, 13, 6.5, 0, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#1b1d1f'; c.lineWidth = 1.2;
+    if (a.tipo === 'vaca') {
+      c.fillStyle = '#f2efe6'; c.beginPath(); c.ellipse(0, 0, 11, 6.2, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#2a2a2a';
+      if (a.cor !== 2) { c.beginPath(); c.ellipse(-4, -2, 3.5, 2.4, 0.4, 0, Math.PI * 2); c.fill(); c.beginPath(); c.ellipse(4, 2.5, 2.6, 2, -0.3, 0, Math.PI * 2); c.fill(); }
+      else { c.fillStyle = '#9a5a32'; c.beginPath(); c.ellipse(-1, 0, 7, 4.5, 0, 0, Math.PI * 2); c.fill(); }
+      c.fillStyle = '#f2efe6'; c.beginPath(); c.ellipse(12 + pasta, passo * 0.5, 4.2, 3.4, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#e9a7a0'; c.beginPath(); c.ellipse(15.2 + pasta, passo * 0.5, 1.8, 2.4, 0, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = '#d9cfa8'; c.lineWidth = 1.4; c.beginPath(); c.moveTo(10.5 + pasta, -3); c.lineTo(9.5 + pasta, -5.5); c.moveTo(10.5 + pasta, 3); c.lineTo(9.5 + pasta, 5.5); c.stroke();
+      c.strokeStyle = '#2a2a2a'; c.lineWidth = 1; c.beginPath(); c.moveTo(-11, 0); c.lineTo(-14, Math.sin(amb.t * 2 + a.fase) * 2); c.stroke();
+    } else {
+      const cor = ['#7a4a2a', '#3a2a22', '#b8a07a'][a.cor];
+      c.fillStyle = cor; c.beginPath(); c.ellipse(0, 0, 11.5, 5, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = cor; c.beginPath(); c.ellipse(13 + pasta, passo * 0.5, 5.5, 2.6, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.strokeStyle = '#1b1612'; c.lineWidth = 2; c.beginPath(); c.moveTo(-6, 0); c.lineTo(9 + pasta * 0.5, 0); c.stroke(); // crina
+      c.lineWidth = 2.2; c.beginPath(); c.moveTo(-11, 0); c.quadraticCurveTo(-15, Math.sin(amb.t * 2.5 + a.fase) * 3, -17, Math.sin(amb.t * 2.5 + a.fase) * 2); c.stroke(); // rabo
+    }
+    c.restore();
+  }
+}
+
+function desenharAves(c, b, noite) {
+  const cor = noite ? '#141619' : '#2b2c2e';
+  for (const a of b.aves) {
+    const x = b.x + a.dx * (0.6 + 0.4 * b.alt), y = b.y + a.dy * (0.6 + 0.4 * b.alt);
+    if (b.alt < 0.15) {
+      // no chão: corpinho ciscando
+      const bica = Math.sin(amb.t * 6 + a.fase) > 0.6 ? 1.5 : 0;
+      c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(x + 1, y + 1.5, 3.2, 2, 0, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#5b5a57'; c.beginPath(); c.ellipse(x, y, 3.2, 2.1, a.fase, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#3a3937'; c.beginPath(); c.arc(x + Math.cos(a.fase) * (3 + bica), y + Math.sin(a.fase) * (3 + bica), 1.4, 0, Math.PI * 2); c.fill();
+      continue;
+    }
+    const s = 4 + 2 * b.alt, bat = Math.sin(amb.t * 12 + a.fase) * 0.8, sx = 14 * b.alt, sy = 20 * b.alt;
+    for (const [ox, oy, col, lw] of [[sx, sy, 'rgba(0,0,0,.22)', 1.6], [0, 0, cor, 1.8]]) {
+      c.save(); c.translate(x + ox, y + oy); c.rotate(b.ang);
+      c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.lineJoin = 'round';
+      c.beginPath(); c.moveTo(-s * 0.4, -s * (0.9 + bat * 0.4)); c.lineTo(s * 0.35, 0); c.lineTo(-s * 0.4, s * (0.9 + bat * 0.4)); c.stroke();
+      c.restore();
+    }
+  }
+}
+
+// noite: escurece a tela e abre buracos de luz nos postes, máquinas ligadas e faróis
+function ambNoite(c, w, h) {
+  const e = ambEscuro();
+  if (e > 0.01) {
+    const q = 4, lw = Math.ceil(w / q), lh = Math.ceil(h / q);
+    if (luzCv.width !== lw || luzCv.height !== lh) { luzCv.width = lw; luzCv.height = lh; }
+    const lc = luzCtx;
+    lc.setTransform(1, 0, 0, 1, 0, 0); lc.globalCompositeOperation = 'source-over'; lc.clearRect(0, 0, lw, lh);
+    const mix = (a, b) => Math.round(a + (b - a) * Math.min(1, e * 1.3));
+    lc.fillStyle = `rgba(${mix(70, 8)},${mix(36, 14)},${mix(30, 40)},${0.56 * e})`; lc.fillRect(0, 0, lw, lh);
+    lc.setTransform(Z / q, 0, 0, Z / q, -cam.x * Z / q, -cam.y * Z / q);
+    lc.globalCompositeOperation = 'destination-out';
+    const luz = (x, y, r, a) => { lc.globalAlpha = a; lc.drawImage(brilho, x - r, y - r, r * 2, r * 2); };
+    for (const f of amb.fontes) {
+      const b = f.b, t = b.t;
+      if (t === 'poste') luz(f.x, f.y, 2.6 * T, 0.95);
+      else if (t === 'hub') luz(f.x, f.y, 4 * T, 0.9);
+      else if (t === 'armazem' || t === 'garagem' || t === 'central' || t === 'escritorio' || t === 'posto') luz(f.x, f.y, 2.4 * T, 0.6);
+      else if (b.trab || (t === 'usina' && b.comb > 0) || (t === 'extrator' && b.sai && b.saiN < 4)) luz(f.x, f.y, 1.7 * T, 0.75);
+    }
+    for (const k of amb.cams) {
+      lc.save(); lc.translate(k.x, k.y); lc.rotate(k.ang); lc.globalAlpha = 0.9;
+      lc.drawImage(brilho, 14, -16, 4.2 * T, 32); lc.restore();
+    }
+    lc.globalAlpha = 1;
+    c.save(); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.imageSmoothingEnabled = true; c.drawImage(luzCv, 0, 0, lw, lh, 0, 0, lw * q, lh * q); c.restore();
+    // brilho quente das lâmpadas e faróis por cima
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (const f of amb.fontes) {
+      const b = f.b, t = b.t;
+      const r = t === 'poste' ? 0.9 * T : (b.trab || (t === 'usina' && b.comb > 0)) ? 0.9 * T : t === 'hub' ? 1.6 * T : 0;
+      if (!r) continue;
+      c.globalAlpha = (t === 'poste' ? 0.5 : 0.32) * e * (t === 'poste' ? 1 : 0.85 + Math.sin(relogio * 7 + f.x) * 0.15);
+      c.drawImage(brilhoQ, f.x - r, f.y - r, r * 2, r * 2);
+    }
+    for (const k of amb.cams) {
+      c.globalAlpha = 0.45 * e;
+      for (const s of [-1, 1]) { const fx = k.x + Math.cos(k.ang) * 26 - Math.sin(k.ang) * 6 * s, fy = k.y + Math.sin(k.ang) * 26 + Math.cos(k.ang) * 6 * s; c.drawImage(brilhoQ, fx - 7, fy - 7, 14, 14); }
+    }
+    c.restore();
+  }
+  // faíscas e pássaros voando ficam por cima da noite
+  if (!ambCfg.vida) return;
+  if (amb.fais.length) {
+    c.save(); c.globalCompositeOperation = 'lighter';
+    for (const p of amb.fais) { const k = p.vida / p.max; c.fillStyle = `rgba(255,${200 - k * 90 | 0},70,${1 - k})`; c.fillRect(p.x - 1, p.y - 1, 2.2, 2.2); }
+    c.restore();
+  }
+  for (const b of amb.bandos) if (b.est !== 'chao' && b.alt >= 0.15) desenharAves(c, b, e > 0.5);
 }
 
 // ---------- interface ----------
@@ -5015,6 +5401,12 @@ for (const k in somVol) $('vol-' + k).oninput = e => {
   try { localStorage.setItem(CHAVE + '-som', JSON.stringify(somVol)); } catch (err) {}
 };
 mostrarVolume();
+for (const k of ['dia', 'vida']) {
+  const el = $('amb-' + k); el.checked = !!ambCfg[k];
+  el.onchange = () => { ambCfg[k] = el.checked; try { localStorage.setItem(CHAVE + '-amb', JSON.stringify(ambCfg)); } catch (err) {} };
+}
+function ambHora() { const p = (amb.t % CICLO) / CICLO; return p < 0.55 ? 'Dia' : p < 0.65 ? 'Entardecer' : p < 0.88 ? 'Noite' : 'Amanhecer'; }
+setInterval(() => { const o = $('amb-hora'); if (o && !$('config').hidden) o.textContent = ambCfg.dia ? ambHora() : ''; }, 500);
 $('b-config').innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 5h7M14 5h3M3 10h2M9 10h8M3 15h9M16 15h1"/><circle cx="12" cy="5" r="2"/><circle cx="7" cy="10" r="2"/><circle cx="14" cy="15" r="2"/></svg>';
 $('b-config').onclick = alternarConfig;
 window.addEventListener('pointerdown', ligarSom);
@@ -5051,6 +5443,7 @@ function quadro(agora) {
     while (acum >= 1 / 60 && n++ < 8) { passo(1 / 60); acum -= 1 / 60; }
     if (n >= 8) acum = 0;
   }
+  ambPasso(pausado ? 0 : dt * vel);
   desenhar();
   desenharMini(relogio);
   ui += dt; autosave += dt;
