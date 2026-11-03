@@ -335,7 +335,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <p>Energia: extratores e máquinas precisam de eletricidade. O Hub dá 15 MW de graça; para mais, construa uma Usina a carvão (tecla U, liberada na Pesquisa) e leve carvão até ela por esteira. Postes (tecla L) ligam uns nos outros a até 8 casas e alimentam o que estiver a até 3 casas deles. Máquina sem energia mostra um raio cortado. Para a usina gerar o dobro (40 MW) com o mesmo carvão, pesquise Bomba d'água e canos e ponha uma Bomba d'água (tecla B) encostada no rio e leve Canos (tecla N) até a usina; cada bomba abastece até 2 usinas.</p>
       <p>Organização (tecla Z): Cerca e Barreira ocupam a casa e ligam sozinhas nas vizinhas. O Portão fica na rua: toque numa rua para trocá-la por ele e abra ou feche na ficha; fechado, o caminhão procura outro caminho ou espera. O Portão deslizante abre sozinho quando o caminhão chega. A Grade de piso é só o chão: esteiras, ruas e máquinas ficam por cima.</p>
       <p>Frota: depois de pesquisar, compre caminhões na Garagem (tecla K) e mande para as docas pela ficha da doca (+ Caminhão). Cada doca pode ter até 4: um carrega enquanto os outros viajam.</p>
-      <p>Logística: a doca pode ter até 3 paradas extras (+ Parada na ficha). O caminhão só sai cheio, entrega até 20 itens em cada recepção (hub, armazém e contêiner recebem até recusar), segue para a próxima e volta com o que sobrou; na volta pode trazer um item escolhido (Frete de volta) e soltar numa Recepção encostada na doca. Dê um nome a docas, recepções, contêineres e armazéns na ficha: ele aparece no mapa e na rota. O Divisor pode ter um lado prioritário, e a saída do Armazém pode mandar "Qualquer item". Áreas copiadas podem ser salvas como molde e coladas depois pelo botão Área.</p>
+      <p>Logística: a doca pode ter até 3 paradas extras (+ Parada na ficha). Por padrão o caminhão sai cheio, entrega até 20 itens em cada recepção (hub, armazém e contêiner recebem até recusar), segue para a próxima e volta com o que sobrou; na volta pode trazer um item escolhido (Frete de volta) e soltar numa Recepção encostada na doca. Dê um nome a docas, recepções, contêineres e armazéns na ficha: ele aparece no mapa e na rota. Na ficha da doca, escolha quando o caminhão sai: cheio, com 25, 50 ou 75% da carga, ou a cada tempo, e se ele só sai quando o destino tiver espaço. Recepção, contêiner, armazém e Hub podem receber no máximo um número de caminhões por vez. O Divisor pode ter um lado prioritário e um lado só para a sobra; o Filtro pode separar um item ou tudo menos ele; a saída do Armazém pode mandar "Qualquer item". Áreas copiadas podem ser salvas como molde e coladas depois pelo botão Área.</p>
       <p>Depois dos 7 contratos fixos chegam pedidos novos sem fim, cada vez maiores. Entregue antes do prazo para ganhar o bônus. O Hub paga um pouco menos por um item que você vende sem parar e o preço volta com o tempo (veja em Estatísticas). A Hidrelétrica (tecla Y, depois de pesquisar) fica encostada no rio e dá 12 MW sem combustível.</p>
       <p>O botão ⚠ lista tudo que está com problema: máquinas travadas ou sem energia, saídas bloqueadas, caminhões presos e usinas sem carvão. Toque num alerta para ir até ele.</p>
       <p>O Contêiner (tecla C) ocupa duas casas e guarda até 250 itens de um tipo só. Ele recebe pela traseira, de esteira ou de caminhão, e solta pela frente.</p>
@@ -1385,6 +1385,43 @@ function paradaOk(q, doca) {
 }
 // posto ou gerador sem espaço que justifique a viagem
 function paradaLotada(q) { return (q.t === 'posto' || q.t === 'gerador') && q.tanque >= capTanque(q) * 0.9; }
+// regras de partida da doca: 0 = padrão (cheio; com uma parada, também 4 s sem chegar nada);
+// 25/50/75 = sai com essa porcentagem da carga; negativo = sai a cada N segundos com o que tiver
+const PARTIDAS = [[0, 'Padrão: sai cheio'], [25, 'Com 25% da carga'], [50, 'Com 50% da carga'], [75, 'Com 75% da carga'], [-30, 'A cada 30 s'], [-60, 'A cada 1 min'], [-120, 'A cada 2 min']];
+// prédios que podem limitar quantos caminhões vêm para cá ao mesmo tempo
+const LIMITAVEL = t => t === 'recepcao' || t === 'conteiner' || t === 'armazem' || t === 'hub' || t === 'central' || t === 'posto' || t === 'gerador';
+// caminhões de qualquer doca que estão indo ou descarregando neste prédio
+function camsIndo(q) {
+  let n = 0;
+  for (const d of S.predios) if (ehDoca(d)) for (const c of d.cams)
+    if ((c.st === 'ida' || c.st === 'descarregando') && c.alvo && dentro(c.alvo.x, c.alvo.y) && grid[c.alvo.y][c.alvo.x] === q) n++;
+  return n;
+}
+function destinoLotado(q) { return !!(q && q.limCam) && camsIndo(q) >= q.limCam; }
+// a parada tem lugar para pelo menos 20 itens desta carga (ou a carga toda, se for menor)?
+function temEspaco(q, carga) {
+  const min = Math.min(carga.length, 20);
+  if (q.t === 'hub' || q.t === 'central') return true;
+  if (q.t === 'posto' || q.t === 'gerador' || q.t === 'docaf') return !paradaLotada(q) && (q.t !== 'docaf' || (q.tanque || 0) + min <= capTanque(q));
+  if (q.t === 'armazem') return CAP_ARM - q.total >= min;
+  if (q.t === 'conteiner') return (!q.tipo || carga.includes(q.tipo)) && CAP_CONT - q.n >= min;
+  if (q.t === 'recepcao') return CAP_REC - q.fila.length >= Math.min(min, CAP_REC);
+  return true;
+}
+// por que o caminhão pronto ainda não saiu (null = pode sair)
+function motivoEspera(b, c) {
+  const d = paradasDe(b)[0];
+  if (!d || c.forcar) return null;
+  if (destinoLotado(d)) return nomeDe(d) + ' já tem ' + d.limCam + (d.limCam === 1 ? ' caminhão' : ' caminhões') + ' a caminho';
+  if (b.soEspaco && c.carga.length && !paradasDe(b).some(q => temEspaco(q, c.carga))) return 'Nenhuma parada com espaço';
+  return null;
+}
+function linhaLimite(b) {
+  const n = camsIndo(b);
+  return '<h3>Caminhões</h3>' + linhaBuf('A caminho ou descarregando', n) +
+    `<div class="linha-buf" style="align-items:center"><span>Receber no máximo</span><select class="sel-saida" id="lim-cam">${[0, 1, 2, 3, 4, 6].map(k => `<option value="${k}" ${(b.limCam || 0) === k ? 'selected' : ''}>${k ? k + (k === 1 ? ' caminhão' : ' caminhões') : 'Sem limite'}</option>`).join('')}</select></div>` +
+    (b.limCam ? '<p style="margin-top:6px">Quando o limite está cheio, o caminhão espera na doca ou pula para a próxima parada da rota.</p>' : '');
+}
 // por que o editor de rotas recusa esta parada (null = aceita)
 function motivoParada(doca, r) {
   if (r && r.t === 'docaf') {
@@ -1522,6 +1559,7 @@ function caminhao(b, c, dt) {
         while (c._enc >= 1 && b.tanque >= 1 && c.carga.length < CAP_COMB) { c.carga.push('combustivel'); b.tanque--; c._enc--; c.esp = 0; }
       }
       c.esp = vez ? c.esp + dt : 0;
+      c.tDoca = vez ? (c.tDoca || 0) + dt : 0;
       if (c.tick >= 0.5 || c.rota === undefined) {
         c.tick = 0;
         const casa = ruasEncostadas(b);
@@ -1532,7 +1570,10 @@ function caminhao(b, c, dt) {
       // com várias paradas só sai cheio (ou quando o jogador mandar)
       // o caminhão-tanque com várias paradas não espera encher para sempre: sai depois de um tempo com uma carga mínima
       const cansou = (c.esp >= 4 && paradasDe(b).length < 2) || (b.t === 'docaf' && paradasDe(b).length > 1 && (c.naDoca || 0) >= ESPERA_DOCAF && c.carga.length >= MIN_DOCAF);
-      if (vez && c.rota && dst && c.carga.length && (c.carga.length >= capCam(c) || cansou || c.forcar) && (c.forcar || b.t !== 'docaf' || !paradasDe(b).every(paradaLotada))) { if (b.t === 'docaf') b.atend = (b.atend || 0) + 1; c.forcar = false; c.naDoca = 0; c.st = 'ida'; c.p = 0; c.parada = r0.i; c.entregue = 0; c.fase = null; c.sobra = false; c.alvo = { x: dst.x, y: dst.y }; }
+      // regra de partida escolhida na ficha da doca: troca o padrão (cheio ou 4 s parado) por porcentagem ou intervalo
+      const pt = b.partida || 0;
+      const pronto = c.carga.length >= capCam(c) || c.forcar || (pt === 0 ? cansou : pt > 0 ? c.carga.length >= capCam(c) * pt / 100 : c.tDoca >= -pt);
+      if (vez && c.rota && dst && c.carga.length && pronto && !motivoEspera(b, c) && (c.forcar || b.t !== 'docaf' || !paradasDe(b).every(paradaLotada))) { c.tDoca = 0; if (b.t === 'docaf') b.atend = (b.atend || 0) + 1; c.forcar = false; c.naDoca = 0; c.st = 'ida'; c.p = 0; c.parada = r0.i; c.entregue = 0; c.fase = null; c.sobra = false; c.alvo = { x: dst.x, y: dst.y }; }
       break;
     }
     case 'ida':
@@ -1668,7 +1709,7 @@ function escHtml(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;',
 function seguirRota(b, c) {
   if (!c.pos) return false;
   for (const o of rotaDe(b)) {
-    if (o.i <= (c.parada || 0)) continue;
+    if (o.i <= (c.parada || 0) || destinoLotado(o.q)) continue;
     const rota = bfs([c.pos], ruasEncostadas(o.q));
     if (rota) { c.parada = o.i; c.alvo = { x: o.q.x, y: o.q.y }; c.rota = rota; c.p = 0; c.st = 'ida'; c.travado = 0; c.entregue = 0; c.fase = null; return true; }
   }
@@ -1994,14 +2035,17 @@ function passo(dt) {
       if (q > 0) { b.tanque += q; if (b._rd) b._prod = (b._prod || 0) + q; }
     } else if (b.t === 'divisor') {
       if (b.fila.length) {
-        const it = b.fila[0];
+        const it = b.fila[0], sob = b.sobra != null && b.sobra !== it.de ? b.sobra : null;
         // com prioridade, tenta primeiro o lado escolhido; os outros só recebem o que sobra
-        if (b.prio != null && b.prio !== it.de && entregaEm(b.x + DX[b.prio], b.y + DY[b.prio], it.i, b.prio, b)) b.fila.shift();
-        else for (let k = 0; k < 4; k++) {
+        let ok = b.prio != null && b.prio !== it.de && b.prio !== sob && entregaEm(b.x + DX[b.prio], b.y + DY[b.prio], it.i, b.prio, b);
+        if (!ok) for (let k = 0; k < 4; k++) {
           const d = (b.rr + k) % 4;
-          if (d === it.de || d === b.prio) continue;
-          if (entregaEm(b.x + DX[d], b.y + DY[d], it.i, d, b)) { b.fila.shift(); b.rr = (d + 1) % 4; break; }
+          if (d === it.de || d === b.prio || d === sob) continue;
+          if (entregaEm(b.x + DX[d], b.y + DY[d], it.i, d, b)) { ok = true; b.rr = (d + 1) % 4; break; }
         }
+        // lado da sobra: só recebe quando todos os outros lados estão cheios
+        if (!ok && sob != null) ok = entregaEm(b.x + DX[sob], b.y + DY[sob], it.i, sob, b);
+        if (ok) b.fila.shift();
       }
       bloqueio(b, b.fila.length >= 2, false, null);
     } else if (ehDoca(b)) {
@@ -2047,7 +2091,7 @@ function passo(dt) {
       }
     } else if (b.t === 'filtro') {
       if (b.buf) {
-        const dOut = b.buf === b.item ? (b.dir + b.lado) % 4 : b.dir;
+        const dOut = (b.buf === b.item) !== !!b.inv ? (b.dir + b.lado) % 4 : b.dir;
         const ok = entregaEm(b.x + DX[dOut], b.y + DY[dOut], b.buf, dOut, b);
         if (ok) b.buf = null;
         bloqueio(b, true, ok, dOut);
@@ -2225,13 +2269,15 @@ function reg(e) { if (desfazendo) return; e.g = toqueId; hist.push(e); if (hist.
 function cfgDe(b) {
   return { t: b.t, x: b.x, y: b.y, dir: b.dir || 0, nv: b.nv, rec: b.rec, item: b.item, lado: b.lado, saidas: b.saidas ? b.saidas.slice() : null,
     modo: b.modo, par: b.par ? { ...b.par } : null, dest: b.dest ? { ...b.dest } : null, paradas: b.paradas ? b.paradas.map(p => ({ ...p })) : null,
-    volta: b.volta, prio: b.prio, livres: b.livres, livresF: b.livresF, aberto: b.aberto, ativo: b.ativo, gasto: b.gasto, recebido: b.recebido, pago: b.pago };
+    volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, partida: b.partida, soEspaco: b.soEspaco, limCam: b.limCam, livres: b.livres, livresF: b.livresF, aberto: b.aberto, ativo: b.ativo, gasto: b.gasto, recebido: b.recebido, pago: b.pago };
 }
 function aplicarConfig(b, o) {
   if (o.rec != null && RECEITAS[b.t]) b.rec = o.rec;
-  if (b.t === 'filtro') { b.item = o.item; b.lado = o.lado; }
+  if (b.t === 'filtro') { b.item = o.item; b.lado = o.lado; b.inv = !!o.inv; }
   if (b.t === 'armazem' && o.saidas) b.saidas = o.saidas.slice();
-  if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas || []; b.volta = o.volta || null; }
+  if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas || []; b.volta = o.volta || null; b.partida = o.partida || 0; b.soEspaco = !!o.soEspaco; }
+  if (LIMITAVEL(b.t) && o.limCam) b.limCam = o.limCam;
+  if (b.t === 'divisor' && o.sobra != null) b.sobra = o.sobra;
   if (b.t === 'docaf' && o.modo) b.modo = o.modo;
   if (b.t === 'escritorio') { b.ativo = !!o.ativo; b.gasto = o.gasto || 0; }
   if (b.t === 'central') { b.recebido = o.recebido || {}; b.pago = o.pago || 0; }
@@ -2323,7 +2369,7 @@ function moldeDe(a) {
   const m0 = molde; molde = [];
   for (const b of ps) molde.push({ t: b.t, x: b.x - a.x0, y: b.y - a.y0, dir: b.dir || 0, nv: b.nv, rec: b.rec, item: b.item, lado: b.lado,
     saidas: b.saidas ? b.saidas.slice() : null, modo: b.modo, par: b.t === 'tunel' && dentroA(b.par) ? rel(b.par) : null,
-    dest: ehDoca(b) && dentroA(b.dest) ? rel(b.dest) : null, paradas: ehDoca(b) ? (b.paradas || []).filter(dentroA).map(rel) : null, volta: b.volta, prio: b.prio, aberto: b.aberto });
+    dest: ehDoca(b) && dentroA(b.dest) ? rel(b.dest) : null, paradas: ehDoca(b) ? (b.paradas || []).filter(dentroA).map(rel) : null, volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, partida: b.partida, soEspaco: b.soEspaco, limCam: b.limCam, aberto: b.aberto });
   for (const b of pts) molde.push({ t: 'ponte', x: b.x - a.x0, y: b.y - a.y0, dir: 0 });
   for (const b of gs) molde.push({ t: 'grade', x: b.x - a.x0, y: b.y - a.y0, dir: 0 });
   const r = molde; molde = m0; return r;
@@ -2377,9 +2423,11 @@ function colar(hx, hy) {
     const b = grid[o.y][o.x];
     if (b.t === 'portao' && o.m.aberto != null) b.aberto = o.m.aberto;
     if (o.m.rec != null && RECEITAS[b.t] && RECEITAS[b.t][o.m.rec]) b.rec = o.m.rec;
-    if (b.t === 'filtro') { b.item = o.m.item; b.lado = o.m.lado; }
+    if (b.t === 'filtro') { b.item = o.m.item; b.lado = o.m.lado; b.inv = !!o.m.inv; }
     if (b.t === 'armazem' && o.m.saidas) b.saidas = o.m.saidas.slice();
-    if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas; b.volta = o.m.volta || null; }
+    if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas; b.volta = o.m.volta || null; b.partida = o.m.partida || 0; b.soEspaco = !!o.m.soEspaco; }
+    if (LIMITAVEL(b.t) && o.m.limCam) b.limCam = o.m.limCam;
+    if (b.t === 'divisor' && o.m.sobra != null) b.sobra = (o.m.sobra + rotCol) % 4;
     if (b.t === 'docaf' && o.m.modo) b.modo = o.m.modo;
     if (b.t === 'divisor' && o.m.prio != null) b.prio = (o.m.prio + rotCol) % 4;
     if (b.t === 'tunel' && o.par) { b.modo = o.m.modo; b.par = o.par; }
@@ -2943,6 +2991,8 @@ function desenharPredio(c, b, cx, cy, s, tm) {
       c.save(); c.rotate(lado * Math.PI / 2); c.fillStyle = '#7cc47f';
       c.beginPath(); c.moveTo(15, 0); c.lineTo(9, -5); c.lineTo(9, 5); c.closePath(); c.fill(); c.restore();
       if (b.item) { c.fillStyle = 'rgba(27,29,31,.85)'; c.beginPath(); c.arc(0, 0, 6.5, 0, Math.PI * 2); c.fill(); desenharItem(c, b.item, 0, 0, 4.5); }
+      // invertido: risco vermelho sobre o item ("tudo menos este")
+      if (b.inv) { c.strokeStyle = '#e0533d'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 6.5, 0, Math.PI * 2); c.moveTo(-4.6, 4.6); c.lineTo(4.6, -4.6); c.stroke(); }
       break;
     }
     case 'tunel': {
@@ -3946,7 +3996,8 @@ function atualizarInfo() {
     html += '<h3>Carga</h3>' + linhaBuf('Na fila', valorItens(icCarga(b.fila), b.fila.length + ' / 2'));
     const LADOS = ['Direita', 'Baixo', 'Esquerda', 'Cima'];
     html += '<h3>Prioridade</h3>' + `<div class="linha-buf" style="align-items:center"><span>Encher primeiro</span><select class="sel-saida" id="div-prio"><option value="">Nenhum (reparte igual)</option>${LADOS.map((n, i) => `<option value="${i}" ${b.prio === i ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`;
-    html += '<p style="margin-top:6px">Com prioridade, tudo vai para o lado escolhido; os outros lados só recebem quando ele enche.</p>';
+    html += `<div class="linha-buf" style="align-items:center"><span>Só a sobra</span><select class="sel-saida" id="div-sobra"><option value="">Nenhum</option>${LADOS.map((n, i) => `<option value="${i}" ${b.sobra === i ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`;
+    html += '<p style="margin-top:6px">Com prioridade, tudo vai para o lado escolhido; os outros lados só recebem quando ele enche. O lado da sobra só recebe quando todos os outros estão cheios: bom para mandar o excesso a um contêiner sem tirar material das máquinas.</p>';
   } else if (ehDoca(b)) {
     const ESTADO = { carregando: 'Carregando na doca', ida: 'Na estrada, indo', descarregando: 'Descarregando', volta: 'Voltando', garagem: 'Indo para a garagem', entregando: 'Soltando o frete de volta', posto: 'Indo ao posto', abastecendo: 'Abastecendo' };
     const d = paradasDe(b)[0] || null, k = b.cams.find(q => q.st === 'carregando');
@@ -3963,7 +4014,12 @@ function atualizarInfo() {
       if (q.st === 'descarregando' && (q.travado || 0) > 1) e = 'Preso: destino cheio';
       return linhaBuf('Caminhão ' + (i + 1) + ' · ' + e, valorItens(icCarga(q.carga), q.carga.length + ' / ' + capCam(q))) + linhaDiesel(q);
     }).join('');
-    html += `<p style="margin-top:8px">${paradasDe(b).length > 1 ? `Com várias paradas, o caminhão só sai cheio (${capCam(b.cams[0] || {})} ${b.t === 'docaf' ? 'unidades' : 'itens'}) ou quando você mandar.` : `O caminhão sai cheio (${capCam(b.cams[0] || {})} ${b.t === 'docaf' ? 'unidades' : 'itens'}), depois de 4 s sem chegar nada novo, ou quando você mandar.`} Com mais caminhões, um carrega enquanto os outros viajam.</p>`;
+    const k0 = k && motivoEspera(b, k);
+    if (k0) html += `<p style="margin-top:8px;color:var(--seguranca)">Esperando para sair: ${escHtml(k0)}.</p>`;
+    html += '<h3>Partida</h3>' + `<div class="linha-buf" style="align-items:center"><span>O caminhão sai</span><select class="sel-saida" id="doca-partida">${PARTIDAS.map(([v, n]) => `<option value="${v}" ${(b.partida || 0) === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>` +
+      `<div class="linha-buf" style="align-items:center"><span>Só se o destino tiver espaço</span><input type="checkbox" id="doca-espaco" ${b.soEspaco ? 'checked' : ''} style="accent-color:var(--seguranca)"></div>`;
+    const pt = b.partida || 0, capT = capCam(b.cams[0] || {}) + ' ' + (b.t === 'docaf' ? 'unidades' : 'itens');
+    html += `<p style="margin-top:6px">${pt > 0 ? `O caminhão sai quando tiver ${pt}% da carga (${Math.ceil((capCam(b.cams[0] || {})) * pt / 100)} de ${capT}) ou quando você mandar.` : pt < 0 ? `O caminhão sai a cada ${-pt >= 60 ? (-pt / 60) + ' min' : -pt + ' s'} com o que tiver carregado (ou cheio antes disso).` : paradasDe(b).length > 1 ? `Com várias paradas, o caminhão só sai cheio (${capT}) ou quando você mandar.` : `O caminhão sai cheio (${capT}), depois de 4 s sem chegar nada novo, ou quando você mandar.`}${b.soEspaco ? ' Só sai se alguma parada tiver lugar para pelo menos 20 itens da carga.' : ''} Com mais caminhões, um carrega enquanto os outros viajam.</p>`;
     const presos = b.cams.filter(q => q.st === 'descarregando' && (q.travado || 0) > 1);
     if (presos.length) html += `<p style="color:var(--perigo)">${presos.length === 1 ? 'Um caminhão está esperando' : presos.length + ' caminhões estão esperando'} com carga que o destino não aceita agora.</p><div class="acoes"><button class="btn" id="i-voltar">Voltar com a carga</button><button class="btn perigo" id="i-descartar">Descartar carga</button></div>`;
     html += `<div class="acoes"><button class="btn" id="i-partir" ${k && k.carga.length && k.rota ? '' : 'disabled'}>Partir agora</button></div>`;
@@ -3984,7 +4040,9 @@ function atualizarInfo() {
     if (b.tanque >= 1 || b._rd) html += linhaItem('combustivel', 'Combustível no tanque, sai por cano', Math.floor(b.tanque || 0) + ' / ' + CAP_REC_COMB);
     html += linhaDocas(b);
   } else if (b.t === 'filtro') {
-    html += '<h3>Item separado</h3>' + `<div class="linha-buf" style="align-items:center"><span>Sai pelo lado</span>${seletorItem('filtro-item', opsItem(VAZIO_FILTRO), b.item)}</div>`;
+    html += '<h3>Item separado</h3>' + `<div class="linha-buf" style="align-items:center"><span>${b.inv ? 'Segue em frente' : 'Sai pelo lado'}</span>${seletorItem('filtro-item', opsItem(VAZIO_FILTRO), b.item)}</div>`;
+    html += `<h3>Modo</h3><div class="acoes"><button class="btn" id="i-inv" aria-pressed="${b.inv ? 'true' : 'false'}">${b.inv ? 'Tudo menos este item · trocar' : 'Só este item · trocar'}</button></div>`;
+    html += `<p style="margin-top:6px">${b.inv ? 'O item escolhido segue em frente; todo o resto sai pelo lado (seta verde).' : 'O item escolhido sai pelo lado (seta verde); todo o resto segue em frente.'}</p>`;
     html += `<h3>Lado da saída verde</h3><div class="acoes"><button class="btn" id="i-lado" aria-pressed="false">${b.lado === 1 ? 'Direita' : 'Esquerda'} · trocar</button></div>`;
     html += linhaBuf('Item passando', b.buf ? valorItens(icItem(b.buf), ITENS[b.buf].nome) : '—');
   } else if (b.t === 'tunel') {
@@ -4036,6 +4094,7 @@ function atualizarInfo() {
   }
   if (b.t === 'escritorio') html += '<h3>Serviços</h3>' +linhasEsc(b) + `<div class="acoes"><button class="btn" id="i-servicos" aria-pressed="${!!b.ativo}">${b.ativo ? 'Cancelar serviços' : 'Contratar serviços'}</button></div>`;
   html += linhaBonus(b);
+  if (LIMITAVEL(b.t)) html += linhaLimite(b);
   if (b.t === 'ponte') html += '<h3>Embaixo</h3>' +linhaBuf('Passando sob a ponte', grid[b.y][b.x] ? PREDIOS[grid[b.y][b.x].t].nome : 'Nada');
   const mot = b.t !== 'esteira' && (b._bt || 0) > 3 ? motivoSaida(b) : null;
   if (mot) html += `<h3 style="color:var(--perigo)">Saída bloqueada</h3><p>${mot}</p>`;
@@ -4050,7 +4109,12 @@ function atualizarInfo() {
     b.rec = i; b.buf = {}; b.trab = false; b.prog = 0; b.trava = null; atualizarInfo();
     if (lst[i].saiFluido && !b._rdS) avisar(AVISO_FLUIDO + ' Ponha um Cano na porta da frente da refinaria.', false, 4500);
   });
-  const dp = $('div-prio'); if (dp) dp.onchange = () => { b.prio = dp.value === '' ? null : +dp.value; dp.blur(); atualizarInfo(); };
+  const dp = $('div-prio'); if (dp) dp.onchange = () => { b.prio = dp.value === '' ? null : +dp.value; if (b.prio != null && b.prio === b.sobra) b.sobra = null; dp.blur(); atualizarInfo(); };
+  const dsb = $('div-sobra'); if (dsb) dsb.onchange = () => { b.sobra = dsb.value === '' ? null : +dsb.value; if (b.sobra != null && b.sobra === b.prio) b.prio = null; dsb.blur(); atualizarInfo(); };
+  const iv = $('i-inv'); if (iv) iv.onclick = () => { b.inv = !b.inv; atualizarInfo(); };
+  const dpt = $('doca-partida'); if (dpt) dpt.onchange = () => { b.partida = +dpt.value; for (const q of b.cams) q.tDoca = 0; dpt.blur(); atualizarInfo(); };
+  const dse = $('doca-espaco'); if (dse) dse.onchange = () => { b.soEspaco = dse.checked; atualizarInfo(); };
+  const lcm = $('lim-cam'); if (lcm) lcm.onchange = () => { b.limCam = +lcm.value || 0; lcm.blur(); atualizarInfo(); };
   const fi = $('filtro-item'); if (fi) fi.onclick = () => abrirLista(fi, opsItem(VAZIO_FILTRO), b.item, v => { b.item = v; });
   const ld = $('i-lado'); if (ld) ld.onclick = () => { b.lado = b.lado === 1 ? 3 : 1; atualizarInfo(); };
   for (let l = 0; l < 4; l++) { const el = $('saida-' + l); if (el) el.onclick = () => abrirLista(el, opsSaida(b), b.saidas[l], v => { b.saidas[l] = v; }); }
@@ -4284,7 +4348,7 @@ function pontasDaFila(m) {
     if (a.t === 'esteira') { const ult = a.itens[a.itens.length - 1]; seguir(a.dir, ult ? ult.i : i, a); }
     else if (a.t === 'tunel') { const sd = parDe(a); if (sd) seguir(sd.dir, a.sub.length ? a.sub[0].i : i, sd); }
     else if (a.t === 'unificador') seguir(a.dir, i, a);
-    else if (a.t === 'filtro') { if (a.buf) seguir(a.buf === a.item ? (a.dir + a.lado) % 4 : a.dir, a.buf, a); }
+    else if (a.t === 'filtro') { if (a.buf) seguir((a.buf === a.item) !== !!a.inv ? (a.dir + a.lado) % 4 : a.dir, a.buf, a); }
     else if (a.t === 'divisor') {
       const it = a.fila.length ? a.fila[0].i : i;
       let saidas = 0;
