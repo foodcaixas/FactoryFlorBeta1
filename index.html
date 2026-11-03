@@ -328,20 +328,20 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       </dl>
       <p>Máquinas recebem itens por qualquer lado, menos pela saída. Esteiras que encostam de lado numa outra esteira fazem a junção. O Hub central (tecla H) você constrói uma única vez, onde quiser, e é o único lugar que compra: ele tem uma porta de entrada em cada lado e também recebe de caminhão. O Unificador (tecla 8) junta esteiras com itens diferentes numa só, e o Filtro (tecla F) separa um item escolhido para o lado.</p>
       <p>Cuidado com as máquinas: se entrar um item que não está na receita, elas travam. Refaça a esteira para levar só os ingredientes certos e toque em Destravar na ficha da máquina.</p>
-      <p>Para levar carga longe, ponha uma Doca de carga na ponta da esteira e uma Recepção onde quiser. O caminhão da doca leva até 300 itens por viagem e a recepção solta tudo na esteira da frente dela. Para cruzar esteiras, use a Ponte (toque em Rua na bancada e escolha Ponte, ou tecla P): é uma rua elevada que passa por cima das esteiras. O caminhão só anda pelas ruas (tecla E): a doca e o destino precisam encostar numa rua, e a rua precisa ligar os dois. Ao construir uma doca, toque logo em seguida no destino dela. Ponta de rua sem saída vira um retorno.</p>
+      <p>Para levar carga longe, use a logística por pedidos. Ponha uma Doca de carga na ponta da esteira: ela junta o que chega. Onde precisar do material, ponha uma Recepção e, na ficha dela, faça um pedido ("manter 50 chapas"). Os caminhões da Garagem (tecla K; a primeira vem com um caminhão) buscam na doca e levam até a recepção, que solta na esteira da frente. O que ninguém pede, a doca manda vender no Hub. Para cruzar esteiras, use a Ponte (toque em Rua na bancada e escolha Ponte, ou tecla P): é uma rua elevada que passa por cima das esteiras. O caminhão só anda pelas ruas (tecla E): a garagem, a doca e quem pediu precisam encostar numa rua, e as ruas precisam se ligar. Ponta de rua sem saída vira um retorno.</p>
       <p>O Armazém central (tecla G, liberado na Pesquisa) ocupa 4×4 casas e guarda até 2.000 itens de todos os tipos. As 4 entradas ficam no lado de trás e as 4 saídas no lado da frente; escolha na ficha qual item sai por cada saída.</p>
       <p>Terreno: você começa com os 4 lotes do meio. Para crescer, toque com a Mão num lote escuro e compre (cada lote deixa o próximo mais caro). Do outro lado do rio há mais jazidas: caminhão cruza o rio pela Ponte, e esteira passa por baixo com o Túnel.</p>
       <p>Esteiras têm três níveis (toque em Esteira na bancada): lenta, normal (2× mais rápida, 4× o preço) e rápida (3× mais rápida, 10× o preço). Arraste uma esteira de outro nível por cima para trocar. O Túnel (tecla T) passa itens por baixo de até 6 casas: a primeira peça é a entrada, a segunda, na mesma direção, a saída.</p>
       <p>Energia: extratores e máquinas precisam de eletricidade. O Hub dá 15 MW de graça; para mais, construa uma Usina a carvão (tecla U, liberada na Pesquisa) e leve carvão até ela por esteira. Postes (tecla L) ligam uns nos outros a até 8 casas e alimentam o que estiver a até 3 casas deles. Máquina sem energia mostra um raio cortado. Para a usina gerar o dobro (40 MW) com o mesmo carvão, pesquise Bomba d'água e canos e ponha uma Bomba d'água (tecla B) encostada no rio e leve Canos (tecla N) até a usina; cada bomba abastece até 2 usinas.</p>
       <p>Organização (tecla Z): Cerca e Barreira ocupam a casa e ligam sozinhas nas vizinhas. O Portão fica na rua: toque numa rua para trocá-la por ele e abra ou feche na ficha; fechado, o caminhão procura outro caminho ou espera. O Portão deslizante abre sozinho quando o caminhão chega. A Grade de piso é só o chão: esteiras, ruas e máquinas ficam por cima.</p>
-      <p>Frota: depois de pesquisar, compre caminhões na Garagem (tecla K) e mande para as docas pela ficha da doca (+ Caminhão). Cada doca pode ter até 4: um carrega enquanto os outros viajam.</p>
-      <p>Logística: a doca pode ter até 3 paradas extras (+ Parada na ficha). Por padrão o caminhão sai cheio, entrega até 20 itens em cada recepção (hub, armazém e contêiner recebem até recusar), segue para a próxima e volta com o que sobrou; na volta pode trazer um item escolhido (Frete de volta) e soltar numa Recepção encostada na doca. Dê um nome a docas, recepções, contêineres e armazéns na ficha: ele aparece no mapa e na rota. Na ficha da doca, escolha quando o caminhão sai: cheio, com 25, 50 ou 75% da carga, ou a cada tempo, e se ele só sai quando o destino tiver espaço. Recepção, contêiner, armazém e Hub podem receber no máximo um número de caminhões por vez. O Divisor pode ter um lado prioritário e um lado só para a sobra; o Filtro pode separar um item ou tudo menos ele; a saída do Armazém pode mandar "Qualquer item". Áreas copiadas podem ser salvas como molde e coladas depois pelo botão Área.</p>
+      <p>Frota: compre caminhões na Garagem (tecla K). Cada caminhão parado lá atende sozinho o pedido mais necessitado, buscando no fornecedor mais perto. Para ter mais caminhões trabalhando ao mesmo tempo, compre mais; a pesquisa Frota maior dobra as vagas de cada garagem.</p>
+      <p>Pedidos: na ficha da Recepção, do Armazém e do Contêiner, toque em + Pedido, escolha o item e quanto quer manter. Abaixo do mínimo, um caminhão traz. Em armazéns e contêineres, "Liberar acima de" oferece o excesso a quem pedir, e o que ninguém pede vai para o Hub. Postos e geradores pedem combustível sozinhos quando o tanque cai abaixo da metade. A ficha mostra o que está chegando ou por que o pedido parou (sem fornecedor, sem caminhão livre, sem rua). Recepção, contêiner, armazém e Hub podem receber no máximo um número de caminhões por vez. O Divisor pode ter um lado prioritário e um lado só para a sobra; o Filtro pode separar um item ou tudo menos ele; a saída do Armazém pode mandar "Qualquer item".</p>
       <p>Depois dos 7 contratos fixos chegam pedidos novos sem fim, cada vez maiores. Entregue antes do prazo para ganhar o bônus. O Hub paga um pouco menos por um item que você vende sem parar e o preço volta com o tempo (veja em Estatísticas). A Hidrelétrica (tecla Y, depois de pesquisar) fica encostada no rio e dá 12 MW sem combustível.</p>
       <p>O botão ⚠ lista tudo que está com problema: máquinas travadas ou sem energia, saídas bloqueadas, caminhões presos e usinas sem carvão. Toque num alerta para ir até ele.</p>
       <p>O Contêiner (tecla C) ocupa duas casas e guarda até 250 itens de um tipo só. Ele recebe pela traseira, de esteira ou de caminhão, e solta pela frente.</p>
       <p>Petróleo: depois de pesquisar Aço e Petróleo, procure as manchas escuras no mapa (as gotas mostram a pureza). O Extrator de petróleo (tecla -) fica exatamente em cima da mancha, usa 15 MW e custa aço e placas de circuito dos seus armazéns e contêineres. Ligue um Cano na saída dele (casa de baixo do lado direito) até uma Refinaria (tecla =), que usa 30 MW e solta plástico na esteira ou combustível num cano, pela porta da frente. Rede de água fica azul, de petróleo fica preta, de combustível fica laranja, e elas não podem se encostar.</p>
       <p>Escritório Operacional (tecla vírgula, liberado na Pesquisa): toque nele e contrate os serviços por R$ 250 por minuto. As máquinas a até 36 casas produzem 25% mais rápido e ganham um selo azul. Máquina sem energia ou sem material continua parada, e sem dinheiro o contrato cai sozinho.</p>
-      <p>Combustível: líquido, não anda em esteira nem em caminhão comum. Leve o cano da refinaria até uma Doca de Fluidos (tecla .), encostada numa rua. O Hub também compra combustível direto por cano, encostado em qualquer lado dele. O caminhão de combustível enche na doca e entrega no Hub, em armazém ou contêiner, ou numa recepção, de onde o combustível sai por cano. Na ficha, a doca também pode receber de caminhões e soltar por cano. Mais caminhões de combustível: Garagem.</p>
+      <p>Combustível: líquido, não anda em esteira nem em caminhão comum. Leve o cano da refinaria até uma Doca de Fluidos (tecla .), encostada numa rua. O Hub também compra combustível direto por cano, encostado em qualquer lado dele. Compre caminhões de combustível na Garagem: eles buscam na doca e levam aos postos e geradores que pedem, ou vendem no Hub. Na ficha, a doca também pode receber de caminhões e soltar por cano.</p>
       <p>Diesel: 15 minutos depois de pesquisar Petróleo, os caminhões passam a gastar 1 unidade a cada 40 casas. Abaixo de um quarto do tanque, eles desviam sozinhos para o Posto de combustível (tecla ;), encostado numa rua, e depois retomam a rota. Sem diesel, andam a 40% da velocidade. Leve combustível ao posto por cano, caminhão de combustível ou barril em esteira. O Gerador a diesel (tecla ]) recebe do mesmo jeito e dá 15 MW onde não chega carvão.</p>
       <p>Barril de Combustível: na ficha da Doca de Fluidos, escolha Encher barris e ponha uma esteira na porta da frente. Cada barril leva 10 unidades e é um item comum: anda em esteira, em caminhão comum e cabe em contêiner, armazém e recepção. No Hub, vale 10 unidades em preço e nos contratos de combustível.</p>
       <p>Forno Industrial (tecla /, liberado na pesquisa de Aço): ocupa 3×2 casas e tem duas entradas nos cantos de trás, para assar o que combina materiais. O aço é feito nele: leve lingotes de ferro e carvão por uma entrada cada, ou juntos pela mesma. O forno comum não faz mais aço.</p>
@@ -462,9 +462,9 @@ const PREDIOS = {
   gerador:   { nome: 'Gerador a diesel', preco: 700, desc: 'Ocupa 2×2 casas. Gera 15 MW onde não chega carvão e queima até 10 unidades por minuto, só o que a rede pede. Guarda 100 unidades e recebe por cano, de caminhão de combustível ou de barril na esteira. Ligue com postes como a usina.' },
   escritorio:{ nome: 'Escritório Operacional', preco: 0, custoTxt: '40 aço + 25 placas', itens: { aco: 40, circuito: 25 }, desc: 'Ocupa 4×4 casas. Com os serviços contratados na ficha (R$ 250 por minuto), as máquinas a até 36 casas produzem 25% mais rápido, sem gastar mais energia nem material por item. Vários escritórios não somam. Custa 40 aço e 25 placas de circuito, tirados dos seus armazéns e contêineres.' },
   central:   { nome: 'Central Militar', preco: 5000, desc: 'Ocupa 6×4 casas. Compra componentes de armas e munição, pagando mais que o Hub. Recebe pelos 3 portões com seta, com a esteira entrando de frente (o portão do meio pega as duas casas do centro), ou de caminhão, por uma rua encostada. Mostra o contrato militar ativo.' },
-  docaf:     { nome: 'Doca de Fluidos', preco: 1500, desc: 'Ocupa 3×2 casas e vem com um caminhão de combustível. Guarda 500 unidades. Enchendo caminhões, recebe combustível por cano e abastece o caminhão parado nela. Recebendo de caminhões, faz o contrário: o caminhão descarrega aqui e o combustível sai por cano. Enchendo barris, transforma 10 unidades em 1 barril, que sai pela porta da frente, na esteira. Para usar caminhões, precisa encostar numa rua.' },
+  docaf:     { nome: 'Doca de Fluidos', preco: 700, desc: 'Ocupa 3×2 casas e guarda 500 unidades. Enchendo caminhões, recebe combustível por cano e oferece aos caminhões-tanque da garagem, que levam aos postos, geradores e docas que pedem (ou vendem no Hub). Recebendo de caminhões, faz o contrário: pede combustível e solta por cano. Enchendo barris, transforma 10 unidades em 1 barril, que sai pela porta da frente, na esteira. Para usar caminhões, precisa encostar numa rua.' },
   hidro:     { nome: 'Hidrelétrica', preco: 900, desc: 'Ocupa 2×2 casas na beira do rio: precisa encostar na água. Gera 12 MW o tempo todo, sem combustível. Ligue com postes como a usina.' },
-  garagem:   { nome: 'Garagem', preco: 300, desc: 'Ocupa 2×2 casas e guarda até 6 caminhões. Compre caminhões aqui e mande para as docas pela ficha da doca. Precisa de rua até as docas.' },
+  garagem:   { nome: 'Garagem', preco: 300, desc: 'Ocupa 2×2 casas e guarda até 6 caminhões. Os caminhões parados aqui atendem sozinhos os pedidos de recepções, armazéns e contêineres e levam ao Hub o que as docas juntam. A primeira garagem vem com um caminhão. Precisa encostar numa rua.' },
   cerca:     { nome: 'Cerca', preco: 10, desc: 'Cerca de tela para organizar a fábrica. Ocupa a casa e liga sozinha nas cercas e portões vizinhos. Arraste para traçar.' },
   barreira:  { nome: 'Barreira', preco: 15, desc: 'Barreira de proteção com faixas de perigo. Ocupa a casa e liga sozinha nas barreiras vizinhas. Arraste para traçar.' },
   portao:    { nome: 'Portão', preco: 60, desc: 'Fica na rua: toque numa rua para trocá-la pelo portão, ou construa em chão livre. Aberto, o caminhão passa; fechado, ele procura outro caminho ou espera. Abra e feche pela ficha.' },
@@ -480,8 +480,8 @@ const PREDIOS = {
   expedicao: { nome: 'Expedição', preco: 80, desc: 'Pátio de venda antigo.' },
   unificador:{ nome: 'Unificador', preco: 30, desc: 'Junta até três esteiras numa só. Recebe por trás e pelos lados, com itens de tipos diferentes, e solta um de cada vez pela frente, revezando as entradas.' },
   hub:       { nome: 'Hub central', preco: 0, desc: 'Centro de distribuição da empresa. Só existe um: escolha bem o lugar. Ocupa 4×4 casas e compra tudo o que chega pelas 4 portas (uma em cada lado, onde ficam as setas) ou de caminhão, por uma rua encostada. Também compra combustível por um cano encostado. É o único lugar que vende.' },
-  doca:      { nome: 'Doca de carga', preco: 250, desc: 'Recebe itens da esteira por qualquer lado e vem com um caminhão. O caminhão leva até 300 itens por viagem até o destino ligado a esta doca.' },
-  recepcao:  { nome: 'Recepção', preco: 100, desc: 'Recebe a carga do caminhão e solta os itens pela saída, na esteira da frente. Precisa encostar numa rua.' },
+  doca:      { nome: 'Doca de carga', preco: 80, desc: 'Ponto de expedição: recebe itens da esteira por qualquer lado e guarda até 100. Os caminhões da garagem buscam aqui o que recepções, armazéns e contêineres pedem, e levam o resto para vender no Hub. Precisa encostar numa rua.' },
+  recepcao:  { nome: 'Recepção', preco: 100, desc: 'Faça pedidos na ficha ("manter 50 chapas"): os caminhões da garagem trazem, e a recepção solta os itens pela saída, na esteira da frente. Guarda até 100. Precisa encostar numa rua.' },
   conteiner: { nome: 'Contêiner', preco: 150, desc: 'Ocupa duas casas. Guarda até 250 itens de um tipo só. Entra pela traseira (esteira ou caminhão) e sai pela frente, onde fica a seta.' },
   filtro:    { nome: 'Filtro', preco: 40, desc: 'Recebe por trás. O item escolhido na ficha sai pelo lado (seta verde); todo o resto segue em frente (seta amarela).' },
   armazem:   { nome: 'Armazém central', preco: 600, desc: 'Ocupa 4×4 casas e guarda até 2.000 itens de todos os tipos. As 4 entradas ficam todas no lado de trás; as 4 saídas ficam no lado da frente, e você escolhe na ficha o item de cada saída. Também recebe de caminhão.' },
@@ -508,7 +508,7 @@ const PESQUISAS = [
   { id: 'agua', nome: "Bomba d'água e canos", custo: 40, req: 'usina', libera: ['bomba', 'cano'], desc: 'Bomba na beira do rio e canos até a usina: ela gera o dobro (40 MW) com o mesmo carvão.' },
   { id: 'tunel', nome: 'Túnel de esteira', custo: 30, libera: ['tunel'], desc: 'Passa itens por baixo de até 6 casas e do rio.' },
   { id: 'armazem', nome: 'Armazém central', custo: 60, libera: ['armazem'], desc: 'Guarda 2.000 itens de todos os tipos.' },
-  { id: 'garagem', nome: 'Garagem e frota', custo: 60, libera: ['garagem'], desc: 'Até 4 caminhões por doca.' },
+  { id: 'garagem', nome: 'Frota maior', custo: 60, desc: 'Cada garagem guarda 12 caminhões (eram 6).' },
   { id: 'aco', nome: 'Aço', custo: 80, libera: ['fornoind'], desc: 'Forno Industrial, com duas entradas: 2 lingotes de ferro + 1 carvão = 1 aço.' },
   { id: 'petroleo', nome: 'Petróleo', custo: 180, req: 'aco', libera: ['poco', 'refinaria', 'docaf', 'posto', 'gerador', 'cano'], desc: 'Extrator nas jazidas de petróleo, canos e refinaria: plástico e combustível. Doca de Fluidos, caminhão de combustível, posto e gerador a diesel. 15 minutos depois da pesquisa, os caminhões passam a gastar diesel.' },
   { id: 'est3', nome: 'Esteira rápida', custo: 120, req: 'est2', desc: 'Esteira 3× mais rápida (R$ 20).' },
@@ -535,7 +535,7 @@ function pesquisar(id) {
 const QUEDA_VENDA = 0.003; // 0,3% do preço de tabela por unidade vendida
 function precoVenda(item) { return ITENS[item].preco * ((S.precoMult && S.precoMult[item]) || 1); }
 const CAP_ARM = 2000;
-const CAP_DOCA = 20, CAP_REC = 20, CAP_CAM = 300, VCAM = 4, CAP_CONT = 250;
+const CAP_DOCA = 100, CAP_REC = 100, CAP_CAM = 300, VCAM = 4, CAP_CONT = 250;
 const PRECO_EST = [2, 8, 20], NOME_EST = ['Lenta', 'Normal', 'Rápida'], COR_EST = ['#f5c400', '#e01010', '#1f3fe0'];
 const TUNEL_MAX = 6, VTUNEL = VEL * 3;
 const PRECO_CAM = 300, MAX_CAM = 4, CAP_GAR = 6;
@@ -822,7 +822,7 @@ function novoPredio(t, x, y, dir) {
   if (t === 'esteira') { b.itens = []; b.nv = 1; }
   else if (t === 'divisor') { b.fila = []; b.rr = 0; }
   else if (t === 'extrator') { b.prog = 0; b.saiN = 0; b.sai = minerioSob(celulas(b)); }
-  else if (t === 'doca') { b.estoque = []; b.dest = null; b.paradas = []; b.volta = null; b.cams = [novoCam()]; }
+  else if (t === 'doca') { b.estoque = []; b.cams = []; }
   else if (t === 'tunel') { b.modo = 'entrada'; b.par = null; b.sub = []; }
   else if (t === 'usina') { b.carvao = 10; b.comb = 0; } // carga inicial para ligar o primeiro extrator de carvão
   else if (t === 'portao') { b.aberto = true; }
@@ -836,7 +836,7 @@ function novoPredio(t, x, y, dir) {
   else if (t === 'central') { b.recebido = {}; b.pago = 0; }
   else if (t === 'posto') { b.tanque = 0; b.atend = 0; }
   else if (t === 'gerador') { b.tanque = 0; }
-  else if (t === 'docaf') { b.estoque = []; b.dest = null; b.paradas = []; b.volta = null; b.cams = [novoCam('combustivel')]; b.tanque = 0; b.modo = 'carga'; b.atend = 0; }
+  else if (t === 'docaf') { b.estoque = []; b.cams = []; b.tanque = 0; b.modo = 'carga'; b.atend = 0; }
   else if (t === 'poco') { const j = jazidaEm(x, y); b.pureza = j ? j.p : 0; b.tanque = 0; }
   else if (RECEITAS[t]) { b.rec = t === 'forno' ? null : 0; b.buf = {}; b.prog = 0; b.trab = false; b.saiN = 0; b.sai = null; if (t === 'refinaria') b.tanque = 0; }
   return b;
@@ -866,7 +866,8 @@ function combDe(c) { return c.comb == null ? COMB_TANQUE : c.comb; }
 function capTanque(o) { return o.t === 'posto' ? CAP_POSTO : o.t === 'gerador' ? CAP_GERADOR : o.t === 'docaf' ? CAP_DOCAF : CAP_REC_COMB; }
 function precoCam(c) { return c.tipo ? PRECO_CAMF : PRECO_CAM; }
 function nomeCam(b) { return b.t === 'docaf' ? 'caminhão de combustível' : 'caminhão comum'; }
-function vagaGaragem(g) { return (g.livres || 0) + (g.livresF || 0) < CAP_GAR; }
+function capGar() { return pesqFeita('garagem') ? CAP_GAR * 2 : CAP_GAR; }
+function vagaGaragem(g) { return (g.livres || 0) + (g.livresF || 0) < capGar(); }
 
 // modo DEV: fábrica de testes com save próprio, tudo liberado, caixa e energia sem fim
 function aplicarDev() {
@@ -890,7 +891,7 @@ function alternarDev() {
 
 function novoJogo(dev) {
   const seed = (Math.random() * 1e9) | 0;
-  S = { v: 3, seed, dinheiro: 600, contrato: 0, entregue: 0, liberados: INICIAIS.filter(t => !TRAVADOS_PESQ.includes(t)), pesq: { pts: 0, feitas: [] }, precoMult: {}, predios: [], ganhos: [], tempo: 0, vendidos: {}, energiaV: 1, carencia: 600 };
+  S = { v: 3, frota: [], seed, dinheiro: 600, contrato: 0, entregue: 0, liberados: INICIAIS.filter(t => !TRAVADOS_PESQ.includes(t)), pesq: { pts: 0, feitas: [] }, precoMult: {}, predios: [], ganhos: [], tempo: 0, vendidos: {}, energiaV: 1, carencia: 600 };
   gerarJazidas(seed); gerarRio(seed); gerarExpansao(seed);
   S.lotes = Array(LCOLS * LROWS).fill(false); for (const l of LOTES_INICIAIS) S.lotes[l] = true;
   S.hubLivre = true;
@@ -998,6 +999,7 @@ function carregar(txt) {
     for (const p of PESQUISAS) if (pesqFeita(p.id)) for (const l of p.libera || []) if (!S.liberados.includes(l)) S.liberados.push(l);
     migrarCombustivel();
     migrarCargaQuimica();
+    migrarFrota();
     ajustarTerreno();
     if (S.dev) aplicarDev();
     if (d.estat) { Object.assign(estat, d.estat); delete S.estat; }
@@ -1395,6 +1397,7 @@ function camsIndo(q) {
   let n = 0;
   for (const d of S.predios) if (ehDoca(d)) for (const c of d.cams)
     if ((c.st === 'ida' || c.st === 'descarregando') && c.alvo && dentro(c.alvo.x, c.alvo.y) && grid[c.alvo.y][c.alvo.x] === q) n++;
+  for (const c of S.frota || []) if (c.job && predioEm(c.job.para) === q) n++;
   return n;
 }
 function destinoLotado(q) { return !!(q && q.limCam) && camsIndo(q) >= q.limCam; }
@@ -1415,6 +1418,27 @@ function motivoEspera(b, c) {
   if (destinoLotado(d)) return nomeDe(d) + ' já tem ' + d.limCam + (d.limCam === 1 ? ' caminhão' : ' caminhões') + ' a caminho';
   if (b.soEspaco && c.carga.length && !paradasDe(b).some(q => temEspaco(q, c.carga))) return 'Nenhuma parada com espaço';
   return null;
+}
+// pedidos na ficha de recepção, armazém e contêiner
+function linhasPedidos(b) {
+  const ped = b.pedidos || [], comMax = b.t !== 'recepcao', lim = b.t === 'armazem' ? 8 : b.t === 'conteiner' ? 1 : 3;
+  let h = '<h3>Pedidos</h3>';
+  if (!ped.length) h += `<p>${b.t === 'recepcao' ? 'Peça um item e os caminhões da garagem trazem até aqui; a recepção solta na esteira da frente.' : 'Diga quanto quer ter de cada item. Abaixo do mínimo, os caminhões trazem; acima de "liberar acima de", o excesso vai para quem pedir ou é vendido no Hub.'}</p>`;
+  ped.forEach((p, i) => {
+    h += `<div class="linha-buf" style="align-items:center"><span>${seletorItem('ped-item-' + i, opsItem('Escolher item'), p.item)}</span><button class="btn mini" data-ped-tira="${i}" title="Tirar pedido">×</button></div>`;
+    h += `<div class="linha-buf" style="align-items:center"><span>Manter no mínimo</span><input type="number" min="0" step="10" class="sel-saida" id="ped-min-${i}" value="${p.min || 0}" style="width:76px"></div>`;
+    if (comMax) h += `<div class="linha-buf" style="align-items:center"><span>Liberar acima de</span><input type="number" min="0" step="10" class="sel-saida" id="ped-max-${i}" value="${p.max == null ? '' : p.max}" placeholder="não libera" style="width:76px"></div>`;
+    if (p.item) h += linhaBuf('Situação', escHtml(situacaoPedido(b, p)));
+  });
+  h += `<div class="acoes"><button class="btn" id="ped-mais" ${ped.length < lim ? '' : 'disabled'}>+ Pedido</button></div>`;
+  return h;
+}
+function situacaoPedido(b, p) {
+  const tem = qtdEm(b, p.item), ch = (reservas().ch.get(b) || {})[p.item] || 0;
+  if (ch) return 'Tem ' + tem + ' · chegando ' + ch;
+  if (tem >= p.min) return 'Ok · tem ' + tem;
+  const m = b._mot && b._mot[p.item];
+  return 'Tem ' + tem + (m ? ' · ' + m : ' · juntando para pedir');
 }
 function linhaLimite(b) {
   const n = camsIndo(b);
@@ -1470,6 +1494,7 @@ function metasDaPerna(b, c) {
   if (c.st === 'volta') return ruasEncostadas(b);
   if (c.st === 'garagem') { const g = garagemEm(c.gar); return g ? ruasEncostadas(g) : []; }
   if (c.st === 'posto') { const q = postoEm(c.posto); return q ? ruasEncostadas(q) : []; }
+  if (c.frete) { const q = predioEm(c.meta); return q ? ruasEncostadas(q) : []; }
   const r = c.alvo && dentro(c.alvo.x, c.alvo.y) && grid[c.alvo.y][c.alvo.x];
   return paradaOk(r, b) ? ruasEncostadas(r) : [];
 }
@@ -1489,6 +1514,12 @@ function mapearCaminhoes() {
   ocupCam = new Map();
   for (const b of S.predios) if (ehDoca(b)) for (const c of b.cams) {
     if (!c.pos || !(c.st === 'ida' || c.st === 'volta' || c.st === 'garagem' || c.st === 'posto')) continue;
+    const k = c.pos.y * W + c.pos.x;
+    if (!ocupCam.has(k)) ocupCam.set(k, []);
+    ocupCam.get(k).push(c);
+  }
+  for (const c of S.frota) {
+    if (!c.pos || !EM_VIAGEM(c.st)) continue;
     const k = c.pos.y * W + c.pos.x;
     if (!ocupCam.has(k)) ocupCam.set(k, []);
     ocupCam.get(k).push(c);
@@ -1725,6 +1756,301 @@ function tirarDe(r, item) {
   if (r.t === 'armazem') { r.est[item]--; r.total--; if (!r.est[item]) delete r.est[item]; }
   else { r.n--; if (!r.n) r.tipo = null; }
   return true;
+}
+// ---------- logística por pedidos ----------
+// quem pede diz quanto quer ter; a central de despacho casa, uma vez por segundo, quem pede com quem tem
+// e manda o caminhão livre mais perto. As reservas saem dos fretes em andamento (S.frota), nunca ficam velhas.
+const EM_VIAGEM = st => st === 'buscar' || st === 'levar' || st === 'garagem' || st === 'posto';
+const PEDE_ITENS = t => t === 'recepcao' || t === 'armazem' || t === 'conteiner';
+const LIMIAR_VENDA = 50, ESPERA_VENDA = 60, MAX_DESPACHO = 8;
+function refDe(q) { return { x: q.x, y: q.y, t: q.t }; }
+function predioEm(p) { const q = p && dentro(p.x, p.y) && grid[p.y][p.x]; return q && q.x === p.x && q.y === p.y && (!p.t || q.t === p.t) ? q : null; }
+function dist(a, b) { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
+function qtdEm(q, item) {
+  if (q.t === 'recepcao') return ITENS[item].fluido ? Math.floor(q.tanque || 0) : q.fila.reduce((n, i) => n + (i === item), 0);
+  if (q.t === 'armazem') return q.est[item] || 0;
+  if (q.t === 'conteiner') return q.tipo === item ? q.n : 0;
+  if (q.t === 'doca') return q.estoque.reduce((n, i) => n + (i === item), 0);
+  if (q.t === 'posto' || q.t === 'gerador' || q.t === 'docaf') return item === 'combustivel' ? Math.floor(q.tanque || 0) : 0;
+  return 0;
+}
+function espacoEm(q, item) {
+  if (q.t === 'recepcao') return CAP_REC - q.fila.length;
+  if (q.t === 'armazem') return CAP_ARM - q.total;
+  if (q.t === 'conteiner') return q.tipo && q.tipo !== item ? 0 : CAP_CONT - q.n;
+  if (q.t === 'posto' || q.t === 'gerador' || q.t === 'docaf') return capTanque(q) - (q.tanque || 0);
+  return Infinity;
+}
+// reservas dos fretes em andamento: ch = chegando em quem pediu, sa = saindo de quem fornece (por item)
+function reservas() {
+  const ch = new Map(), sa = new Map();
+  const add = (m, q, item, n) => { if (!q || n <= 0) return; let o = m.get(q); if (!o) m.set(q, o = {}); o[item] = (o[item] || 0) + n; o['#'] = (o['#'] || 0) + n; };
+  for (const c of S.frota) {
+    const j = c.job; if (!j) continue;
+    const ida = c.st === 'buscar' || c.st === 'carregar' || (c.st === 'posto' && c.retoma && c.retoma.st === 'buscar');
+    if (ida) add(sa, predioEm(j.de), j.item, j.n - c.carga.length);
+    if (j.item !== '*') add(ch, predioEm(j.para), j.item, ida ? j.n : c.carga.length);
+  }
+  return { ch, sa };
+}
+// o que falta em quem pede: pedidos da ficha, e o combustível de postos, geradores e Doca de Fluidos recebendo
+function faltasDe(q, ch) {
+  const out = [], cq = ch.get(q) || {};
+  const add = (item, min, limiar) => {
+    let f = min - qtdEm(q, item) - (cq[item] || 0);
+    f = Math.min(f, espacoEm(q, item) - (cq['#'] || 0));
+    if (f >= limiar) out.push({ item, falta: Math.floor(f), limiar, min });
+    else if (q._mot) delete q._mot[item];
+  };
+  if (PEDE_ITENS(q.t)) for (const p of q.pedidos || []) if (p.item && p.min > 0) add(p.item, p.min, Math.min(20, Math.max(1, Math.ceil(p.min / 4))));
+  if ((q.t === 'posto' || q.t === 'gerador') && q.tanque < capTanque(q) * 0.5) add('combustivel', capTanque(q), 20);
+  if (q.t === 'docaf' && q.modo === 'descarga') add('combustivel', CAP_DOCAF * 0.8, 50);
+  return out;
+}
+// quanto este prédio pode entregar de um item, tirando o que já está reservado
+function ofertaDe(q, item, sa) {
+  const r = (sa.get(q) || {})[item] || 0;
+  if (q.t === 'doca') return qtdEm(q, item) - r;
+  if (q.t === 'docaf') return q.modo === 'carga' && item === 'combustivel' ? Math.floor(q.tanque) - r : 0;
+  if (q.t === 'armazem' || q.t === 'conteiner') {
+    const p = (q.pedidos || []).find(o => o.item === item && o.max != null);
+    return p ? qtdEm(q, item) - p.max - r : 0;
+  }
+  return 0;
+}
+// caminhão livre do tipo certo mais perto do fornecedor: um que está voltando vazio ou um parado numa garagem
+function pegarCaminhao(tipo, p) {
+  const alvo = ruasEncostadas(p); if (!alvo.length) return null;
+  const cands = [];
+  for (const c of S.frota) if (!c.job && !c.carga.length && (c.st === 'garagem' || c.st === 'parado') && !!c.tipo === !!tipo && c.pos) cands.push({ c, d: dist(c.pos, p) });
+  for (const g of S.predios) if (g.t === 'garagem' && (tipo ? g.livresF : g.livres) > 0) cands.push({ g, d: dist(g, p) });
+  cands.sort((a, b) => a.d - b.d);
+  for (const o of cands.slice(0, 4)) {
+    const rota = bfs(o.c ? [o.c.pos] : ruasEncostadas(o.g), alvo);
+    if (!rota) continue;
+    let c = o.c;
+    if (!c) {
+      if (tipo) o.g.livresF--; else o.g.livres--;
+      c = novoCam(tipo); c.frete = true; c.pos = rota[0]; S.frota.push(c);
+      if (rota.length > 1) c.ang = c.angVis = Math.atan2(rota[1].y - rota[0].y, rota[1].x - rota[0].x);
+    }
+    c.rota = rota; c.p = 0; c.tick = 0; c.gar = null;
+    return c;
+  }
+  return null;
+}
+function darFrete(c, de, para, item, n) {
+  c.job = { de: refDe(de), para: refDe(para), item, n };
+  c.meta = refDe(de); c.st = 'buscar'; c.esp = 0; c.travado = 0;
+  desviarPosto(null, c);
+}
+function despachar() {
+  const { ch, sa } = reservas();
+  const res = (m, q, item, n) => { let o = m.get(q); if (!o) m.set(q, o = {}); o[item] = (o[item] || 0) + n; o['#'] = (o['#'] || 0) + n; };
+  let feitos = 0;
+  // 1. pedidos, do mais necessitado (proporcionalmente) para o menos
+  const reqs = [];
+  for (const q of S.predios) for (const f of faltasDe(q, ch)) reqs.push({ q, ...f });
+  reqs.sort((a, b) => b.falta / b.min - a.falta / a.min);
+  for (const r of reqs) {
+    if (feitos >= MAX_DESPACHO) break;
+    const m0 = r.q._mot || (r.q._mot = {}), vindo = (ch.get(r.q) || {})[r.item] > 0;
+    // com um caminhão já a caminho, o motivo de não mandar outro não é um problema
+    const mot = new Proxy(m0, { set: (o, k, v) => { o[k] = vindo ? 'Caminhão a caminho' : v; return true; } });
+    if (!ruasEncostadas(r.q).length) { mot[r.item] = 'Falta rua encostada aqui'; continue; }
+    if (destinoLotado(r.q)) { mot[r.item] = 'Limite de caminhões cheio'; continue; }
+    const tipo = ITENS[r.item].fluido ? 'combustivel' : undefined;
+    const forn = S.predios.filter(p => p !== r.q && ofertaDe(p, r.item, sa) >= Math.min(r.falta, r.limiar)).sort((a, b) => dist(a, r.q) - dist(b, r.q)).slice(0, 3);
+    if (!forn.length) { mot[r.item] = 'Ninguém oferece ' + ITENS[r.item].nome.toLowerCase(); continue; }
+    const p = forn.find(f => bfs(ruasEncostadas(f), ruasEncostadas(r.q)));
+    if (!p) { mot[r.item] = 'A rua não liga o fornecedor até aqui'; continue; }
+    const c = pegarCaminhao(tipo, p);
+    if (!c) { mot[r.item] = tipo ? 'Sem caminhão de combustível livre' : 'Sem caminhão livre na garagem'; continue; }
+    const n = Math.min(r.falta, ofertaDe(p, r.item, sa), capCam(c));
+    darFrete(c, p, r.q, r.item, n);
+    res(sa, p, r.item, n); res(ch, r.q, r.item, n);
+    mot[r.item] = 'Caminhão a caminho'; feitos++;
+  }
+  // 2. o que ninguém pediu vai para o Hub: docas (salvo se o jogador desligou) e o excesso marcado em armazéns e contêineres
+  const hub = S.predios.find(q => q.t === 'hub');
+  for (const p of S.predios) {
+    if (p.t === 'doca' || (p.t === 'docaf' && p.modo === 'carga')) {
+      const tem = p.t === 'doca' ? p.estoque.length : Math.floor(p.tanque);
+      p.tEsp = tem > 0 ? (p.tEsp || 0) + 1 : 0;
+    }
+    if (!hub || feitos >= MAX_DESPACHO || p.semVenda || destinoLotado(hub)) continue;
+    const vendendo = item => S.frota.some(c => c.job && c.job.para.t === 'hub' && (c.st === 'buscar' || c.st === 'carregar') && predioEm(c.job.de) === p && (item == null || c.job.item === item));
+    let item = null, n = 0, tipo;
+    if (p.t === 'doca') {
+      const falta = itensEmFalta(), livre = p.estoque.filter(i => !falta.has(i)).length - ((sa.get(p) || {})['#'] || 0);
+      if (livre > 0 && (livre >= LIMIAR_VENDA || p.tEsp >= ESPERA_VENDA) && !vendendo()) { item = '*'; n = CAP_CAM; }
+    } else if (p.t === 'docaf' && p.modo === 'carga') {
+      const livre = ofertaDe(p, 'combustivel', sa);
+      if (livre > 0 && (livre >= CAP_COMB / 2 || p.tEsp >= ESPERA_VENDA) && !vendendo()) { item = 'combustivel'; n = Math.min(livre, CAP_COMB); tipo = 'combustivel'; }
+    } else if (p.t === 'armazem' || p.t === 'conteiner') {
+      for (const o of p.pedidos || []) {
+        if (!o.item || o.max == null) continue;
+        const livre = ofertaDe(p, o.item, sa);
+        if (livre >= 20 && !vendendo(o.item)) { item = o.item; n = livre; tipo = ITENS[o.item].fluido ? 'combustivel' : undefined; break; }
+      }
+    }
+    if (!item || !bfs(ruasEncostadas(p), ruasEncostadas(hub))) continue;
+    const c = pegarCaminhao(tipo, p); if (!c) continue;
+    n = Math.min(n, capCam(c));
+    darFrete(c, p, hub, item, n);
+    if (item !== '*') res(sa, p, item, n);
+    p.tEsp = 0; feitos++;
+  }
+}
+// itens que algum pedido está esperando agora: a doca não manda vender esses
+function itensEmFalta() {
+  const { ch } = reservas(), out = new Set();
+  for (const q of S.predios) if (PEDE_ITENS(q.t)) for (const p of q.pedidos || []) if (p.item && p.min > 0 && qtdEm(q, p.item) + ((ch.get(q) || {})[p.item] || 0) < p.min) out.add(p.item);
+  return out;
+}
+// carrega um item do fornecedor; '*' (doca vendendo) pula o que outro frete já reservou e o que algum pedido espera
+function tirarPara(p, j, c) {
+  if (p.t === 'docaf') { if (p.tanque < 1) return false; p.tanque--; c.carga.push('combustivel'); return true; }
+  if (p.t === 'doca') {
+    let k = -1;
+    if (j.item === '*') {
+      const { sa } = reservas(), r = sa.get(p) || {};
+      const cont = {}, falta = itensEmFalta(); for (const i of p.estoque) cont[i] = (cont[i] || 0) + 1;
+      k = p.estoque.findIndex(i => !falta.has(i) && cont[i] > (r[i] || 0));
+    } else k = p.estoque.indexOf(j.item);
+    if (k < 0) return false;
+    c.carga.push(p.estoque.splice(k, 1)[0]); return true;
+  }
+  if (tirarDe(p, j.item)) { c.carga.push(j.item); return true; }
+  return false;
+}
+function irPara(c, q, st) {
+  const rota = q && c.pos && bfs([c.pos], ruasEncostadas(q));
+  if (!rota) return false;
+  c.meta = refDe(q); c.rota = rota; c.p = 0; c.st = st; c.tick = 0; c.esp = 0; c.travado = 0;
+  desviarPosto(null, c);
+  return true;
+}
+// sem destino para a carga: leva para vender no Hub; vazio: volta para a garagem com vaga mais perto
+function recolher(c) {
+  c.job = null;
+  if (c.carga.length) {
+    const hub = S.predios.find(q => q.t === 'hub');
+    if (hub && irPara(c, hub, 'levar')) { c.job = { de: refDe(hub), para: refDe(hub), item: '*', n: c.carga.length }; return; }
+  }
+  const gs = S.predios.filter(g => g.t === 'garagem' && vagaGaragem(g));
+  const rota = c.pos && bfs([c.pos], gs.flatMap(ruasEncostadas));
+  if (!rota) { c.st = 'parado'; c.rota = null; c.esp = 0; return; }
+  const fim = rota[rota.length - 1], g = gs.find(o => ruasEncostadas(o).some(t => t.x === fim.x && t.y === fim.y));
+  c.st = 'garagem'; c.gar = { x: g.x, y: g.y }; c.meta = refDe(g); c.rota = rota; c.p = 0; c.tick = 0;
+}
+function andarFrete(c, dt) {
+  c.tick = (c.tick || 0) + dt;
+  if (c.angVis == null) c.angVis = c.ang || 0;
+  const da = difAng(c.angVis, c.ang || 0), giro = 8 * dt;
+  c.angVis += Math.max(-giro, Math.min(giro, da));
+  const j = c.job;
+  switch (c.st) {
+    case 'buscar':
+      if (!predioEm(j.de)) { recolher(c); break; }
+      if (andar(null, c, dt)) { c.st = 'carregar'; c.esp = 0; }
+      break;
+    case 'carregar': {
+      const p = predioEm(j.de);
+      if (!p) { recolher(c); break; }
+      c.esp += dt;
+      let pronto = false;
+      while (c.esp >= 0.03) {
+        c.esp -= 0.03;
+        if (c.carga.length >= Math.min(j.n, capCam(c)) || !tirarPara(p, j, c)) { pronto = true; break; }
+      }
+      if (!pronto) break;
+      if (!c.carga.length) { recolher(c); break; }
+      j.n = c.carga.length;
+      if (!irPara(c, predioEm(j.para), 'levar')) recolher(c);
+      break;
+    }
+    case 'levar':
+      if (!predioEm(j.para)) { recolher(c); break; }
+      if (andar(null, c, dt)) { c.st = 'descarregar'; c.esp = 0; c.travado = 0; }
+      break;
+    case 'descarregar': {
+      const r = predioEm(j.para);
+      if (!r) { recolher(c); break; }
+      c.esp += dt;
+      if (c.esp >= 0.03 && c.carga.length) {
+        const k = c.carga.findIndex(it => receber(r, it));
+        if (k >= 0) { c.carga.splice(k, 1); c.esp = 0; c.travado = 0; }
+        else c.travado = (c.travado || 0) + c.esp;
+      }
+      if (!c.carga.length) { S.fretes = (S.fretes || 0) + 1; recolher(c); }
+      // quem pediu não aceita mais (cheio ou trocou o pedido): leva a sobra para o Hub
+      else if (c.travado > 3) { if (r.t === 'hub') { c.carga = []; recolher(c); } else recolher(c); }
+      break;
+    }
+    case 'garagem':
+      if (andar(null, c, dt)) {
+        const g = garagemEm(c.gar);
+        if (g && vagaGaragem(g)) { if (c.tipo) g.livresF = (g.livresF || 0) + 1; else g.livres++; S.frota.splice(S.frota.indexOf(c), 1); break; }
+        recolher(c);
+      }
+      break;
+    case 'parado':
+      // sem garagem com vaga ao alcance: espera na rua e tenta de novo
+      c.esp += dt;
+      if (c.esp >= 2) { c.esp = 0; recolher(c); }
+      break;
+    case 'posto': {
+      const q = postoEm(c.posto);
+      if (!q) { retomarFrete(c); break; }
+      if (andar(null, c, dt)) { c.st = 'abastecendo'; c.esp = 0; }
+      break;
+    }
+    case 'abastecendo': {
+      const q = postoEm(c.posto);
+      if (!q) { retomarFrete(c); break; }
+      c._vis = S.tempo;
+      const fila = q._fila = (q._fila || []).filter(o => o._vis >= S.tempo - 0.5);
+      if (!fila.includes(c)) fila.push(c);
+      if (fila.indexOf(c) < BOMBAS) {
+        const v = Math.min(VEL_BOMBA * dt, COMB_TANQUE - combDe(c), q.tanque);
+        q.tanque -= v; c.comb = combDe(c) + v; q._q = (q._q || 0) + v;
+        if (c.comb >= COMB_TANQUE - 0.01 || q.tanque < 0.01) { fila.splice(fila.indexOf(c), 1); q.atend = (q.atend || 0) + 1; retomarFrete(c); }
+      }
+      break;
+    }
+    default: recolher(c);
+  }
+}
+function retomarFrete(c) {
+  const r = c.retoma; c.retoma = null; c.posto = null; c.p = 0;
+  const q = r && predioEm(c.meta);
+  const rota = q && bfs([c.pos], ruasEncostadas(q));
+  if (rota && r.st !== 'garagem') { c.st = r.st; c.rota = rota; }
+  else recolher(c);
+}
+// saves de antes dos pedidos: os caminhões das docas voltam para as garagens e as rotas somem
+function migrarFrota() {
+  if (S.frota) return;
+  S.frota = []; S.camGratis = true;
+  let n = 0, vendidos = 0, din = 0;
+  for (const b of S.predios) if (ehDoca(b)) {
+    for (const c of b.cams || []) {
+      n++;
+      for (const it of c.carga) {
+        if (b.t === 'docaf' && it === 'combustivel' && b.tanque < CAP_DOCAF) b.tanque++;
+        else if (b.t === 'doca' && b.estoque.length < CAP_DOCA && !ITENS[it].fluido) b.estoque.push(it);
+        else din += ITENS[it].preco;
+      }
+      const g = S.predios.filter(o => o.t === 'garagem' && vagaGaragem(o)).sort((a, o) => dist(a, b) - dist(o, b))[0];
+      if (g) { if (c.tipo) g.livresF = (g.livresF || 0) + 1; else g.livres++; }
+      else { din += precoCam(c); vendidos++; }
+    }
+    b.cams = [];
+    for (const k of ['dest', 'paradas', 'volta', 'partida', 'soEspaco']) delete b[k];
+  }
+  S.dinheiro += din;
+  if (n) setTimeout(() => avisar('Novidade: logística por pedidos. Os ' + n + ' caminhões das docas foram para a garagem' + (vendidos ? ' (' + vendidos + ' vendidos por falta de vaga)' : '') + '. Faça pedidos nas fichas de recepções, armazéns e contêineres: os caminhões atendem sozinhos.', true, 10000), 900);
 }
 function garagemEm(p) { const g = p && dentro(p.x, p.y) && grid[p.y][p.x]; return g && g.t === 'garagem' ? g : null; }
 function pedirCaminhao(b) {
@@ -2008,6 +2334,9 @@ function passo(dt) {
   tempoMil(dt);
   fluidos(dt);
   mapearCaminhoes();
+  S._dsp = (S._dsp || 0) + dt;
+  if (S._dsp >= 1) { S._dsp = 0; despachar(); }
+  for (const c of S.frota.slice()) andarFrete(c, dt);
   for (const b of S.predios) {
     if (b.t === 'esteira') {
       const its = b.itens;
@@ -2200,10 +2529,7 @@ function construir(t, x, y, dir) {
   redeT = 0; redeSuja = true;
   reg({ k: 'c', b });
   if (t === 'hub') { ferr = 'mao'; montarBarra(); avisar('Hub central construído. Leve as esteiras até as portas com seta.', true, 3500); }
-  if (ehDoca(b)) {
-    ligando = b; pint = null;
-    avisar('Toque na Recepção, no Contêiner, no Armazém ou no Hub que o ' + nomeCam(b) + ' desta doca vai abastecer.', true, 3500);
-  }
+  if (t === 'garagem' && !S.camGratis) { S.camGratis = true; b.livres = 1; avisar('A primeira garagem vem com um caminhão. Ele atende sozinho os pedidos e as docas.', true, 4000); }
   return true;
 }
 
@@ -2254,7 +2580,7 @@ function removerPredio(b) {
   S.dinheiro += precoDe(b.t, b.nv);
   for (const [k, n] of Object.entries(PREDIOS[b.t].itens || {})) S.dinheiro += ITENS[k].preco * n;
   if (b.t === 'garagem') S.dinheiro += b.livres * PRECO_CAM + (b.livresF || 0) * PRECO_CAMF;
-  if (ehDoca(b)) S.dinheiro += (b.cams.length - 1) * (b.t === 'docaf' ? PRECO_CAMF : PRECO_CAM);
+  if (ehDoca(b)) S.dinheiro += Math.max(0, b.cams.length - 1) * (b.t === 'docaf' ? PRECO_CAMF : PRECO_CAM);
   redeT = 0; redeSuja = true;
   if (sel === b) fecharInfo();
   if (ligando === b) ligando = null;
@@ -2269,7 +2595,7 @@ function reg(e) { if (desfazendo) return; e.g = toqueId; hist.push(e); if (hist.
 function cfgDe(b) {
   return { t: b.t, x: b.x, y: b.y, dir: b.dir || 0, nv: b.nv, rec: b.rec, item: b.item, lado: b.lado, saidas: b.saidas ? b.saidas.slice() : null,
     modo: b.modo, par: b.par ? { ...b.par } : null, dest: b.dest ? { ...b.dest } : null, paradas: b.paradas ? b.paradas.map(p => ({ ...p })) : null,
-    volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, partida: b.partida, soEspaco: b.soEspaco, limCam: b.limCam, livres: b.livres, livresF: b.livresF, aberto: b.aberto, ativo: b.ativo, gasto: b.gasto, recebido: b.recebido, pago: b.pago };
+    volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, limCam: b.limCam, pedidos: b.pedidos ? b.pedidos.map(p => ({ ...p })) : null, semVenda: b.semVenda, livres: b.livres, livresF: b.livresF, aberto: b.aberto, ativo: b.ativo, gasto: b.gasto, recebido: b.recebido, pago: b.pago };
 }
 function aplicarConfig(b, o) {
   if (o.rec != null && RECEITAS[b.t]) b.rec = o.rec;
@@ -2277,6 +2603,8 @@ function aplicarConfig(b, o) {
   if (b.t === 'armazem' && o.saidas) b.saidas = o.saidas.slice();
   if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas || []; b.volta = o.volta || null; b.partida = o.partida || 0; b.soEspaco = !!o.soEspaco; }
   if (LIMITAVEL(b.t) && o.limCam) b.limCam = o.limCam;
+  if (o.pedidos) b.pedidos = o.pedidos.map(p => ({ ...p }));
+  if (o.semVenda) b.semVenda = true;
   if (b.t === 'divisor' && o.sobra != null) b.sobra = o.sobra;
   if (b.t === 'docaf' && o.modo) b.modo = o.modo;
   if (b.t === 'escritorio') { b.ativo = !!o.ativo; b.gasto = o.gasto || 0; }
@@ -2369,7 +2697,7 @@ function moldeDe(a) {
   const m0 = molde; molde = [];
   for (const b of ps) molde.push({ t: b.t, x: b.x - a.x0, y: b.y - a.y0, dir: b.dir || 0, nv: b.nv, rec: b.rec, item: b.item, lado: b.lado,
     saidas: b.saidas ? b.saidas.slice() : null, modo: b.modo, par: b.t === 'tunel' && dentroA(b.par) ? rel(b.par) : null,
-    dest: ehDoca(b) && dentroA(b.dest) ? rel(b.dest) : null, paradas: ehDoca(b) ? (b.paradas || []).filter(dentroA).map(rel) : null, volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, partida: b.partida, soEspaco: b.soEspaco, limCam: b.limCam, aberto: b.aberto });
+    dest: ehDoca(b) && dentroA(b.dest) ? rel(b.dest) : null, paradas: ehDoca(b) ? (b.paradas || []).filter(dentroA).map(rel) : null, volta: b.volta, prio: b.prio, sobra: b.sobra, inv: b.inv, limCam: b.limCam, pedidos: b.pedidos ? b.pedidos.map(p => ({ ...p })) : null, semVenda: b.semVenda, aberto: b.aberto });
   for (const b of pts) molde.push({ t: 'ponte', x: b.x - a.x0, y: b.y - a.y0, dir: 0 });
   for (const b of gs) molde.push({ t: 'grade', x: b.x - a.x0, y: b.y - a.y0, dir: 0 });
   const r = molde; molde = m0; return r;
@@ -2427,6 +2755,8 @@ function colar(hx, hy) {
     if (b.t === 'armazem' && o.m.saidas) b.saidas = o.m.saidas.slice();
     if (ehDoca(b)) { b.dest = o.dest; b.paradas = o.paradas; b.volta = o.m.volta || null; b.partida = o.m.partida || 0; b.soEspaco = !!o.m.soEspaco; }
     if (LIMITAVEL(b.t) && o.m.limCam) b.limCam = o.m.limCam;
+    if (o.m.pedidos) b.pedidos = o.m.pedidos.map(p => ({ ...p }));
+    if (o.m.semVenda) b.semVenda = true;
     if (b.t === 'divisor' && o.m.sobra != null) b.sobra = (o.m.sobra + rotCol) % 4;
     if (b.t === 'docaf' && o.m.modo) b.modo = o.m.modo;
     if (b.t === 'divisor' && o.m.prio != null) b.prio = (o.m.prio + rotCol) % 4;
@@ -3246,7 +3576,7 @@ function desenharPonte(c, b, liga) {
 function desenharCaminhao(c, b, k, fila) {
   let x, y;
   const ang = k.angVis != null ? k.angVis : (k.ang || 0);
-  if ((k.st === 'ida' || k.st === 'volta' || k.st === 'posto') && k.rota && k.rota.length) {
+  if ((k.st === 'ida' || k.st === 'volta' || k.st === 'posto' || (k.frete && EM_VIAGEM(k.st))) && k.rota && k.rota.length) {
     const pr = posRota(k.rota, k.p); x = pr.x; y = pr.y;
   } else if (k.pos) {
     x = k.pos.x * T + T / 2; y = k.pos.y * T + T / 2;
@@ -3514,6 +3844,18 @@ function desenhar() {
   }
   ctx.restore();
   for (const b of S.predios) if (ehDoca(b)) { let n = 0; for (const k of b.cams) desenharCaminhao(ctx, b, k, k.st === 'carregando' ? n++ : 0); }
+  // fretes ligados ao prédio aberto na ficha: linha tracejada do caminho que falta
+  if (sel) {
+    ctx.save(); ctx.setLineDash([6, 6]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(240,180,41,.9)';
+    for (const k of S.frota) {
+      if (!k.job || !k.rota || !EM_VIAGEM(k.st) || (predioEm(k.job.de) !== sel && predioEm(k.job.para) !== sel)) continue;
+      ctx.beginPath();
+      for (let i = Math.floor(k.p); i < k.rota.length; i++) { const t = k.rota[i]; if (i === Math.floor(k.p)) ctx.moveTo(t.x * T + T / 2, t.y * T + T / 2); else ctx.lineTo(t.x * T + T / 2, t.y * T + T / 2); }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  for (const k of S.frota) desenharCaminhao(ctx, null, k, 0);
   // fios entre postes, usinas e o Hub
   ctx.strokeStyle = 'rgba(25,25,25,.75)'; ctx.lineWidth = 1.3;
   for (const [a, b] of redeFios) {
@@ -3999,46 +4341,21 @@ function atualizarInfo() {
     html += `<div class="linha-buf" style="align-items:center"><span>Só a sobra</span><select class="sel-saida" id="div-sobra"><option value="">Nenhum</option>${LADOS.map((n, i) => `<option value="${i}" ${b.sobra === i ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`;
     html += '<p style="margin-top:6px">Com prioridade, tudo vai para o lado escolhido; os outros lados só recebem quando ele enche. O lado da sobra só recebe quando todos os outros estão cheios: bom para mandar o excesso a um contêiner sem tirar material das máquinas.</p>';
   } else if (ehDoca(b)) {
-    const ESTADO = { carregando: 'Carregando na doca', ida: 'Na estrada, indo', descarregando: 'Descarregando', volta: 'Voltando', garagem: 'Indo para a garagem', entregando: 'Soltando o frete de volta', posto: 'Indo ao posto', abastecendo: 'Abastecendo' };
-    const d = paradasDe(b)[0] || null, k = b.cams.find(q => q.st === 'carregando');
-    let sit = k ? ESTADO[k.st] : 'Todos os caminhões na rua';
-    if (b.t === 'docaf' && b.modo !== 'carga') sit = 'Caminhão parado na doca';
-    else if (k) sit = !d ? 'Parado, sem destino' : !ruasEncostadas(b).length ? 'Falta rua encostada na doca' : !ruasEncostadas(d).length ? 'Falta rua encostada no destino' : !k.rota ? 'As ruas não se ligam' : sit;
-    html += '<h3>Doca</h3>' + linhaBuf('Situação', sit) + (b.t === 'docaf' ? linhasDocaF(b) : linhaBuf('Estoque na doca', valorItens(icCarga(b.estoque), b.estoque.length + ' / ' + CAP_DOCA))) +
-      linhaBuf('Destino', d ? escHtml(nomeDe(d)) + (k && k.rota ? ' · ' + (k.rota.length - 1) + ' quadras de rua' : '') : 'Nenhum');
+    const busc = S.frota.filter(c => c.job && predioEm(c.job.de) === b && (c.st === 'buscar' || c.st === 'carregar' || c.st === 'posto')).length;
+    html += '<h3>Expedição</h3>' + (b.t === 'docaf' ? linhasDocaF(b) : linhaBuf('Estoque na doca', valorItens(icCarga(b.estoque), b.estoque.length + ' / ' + CAP_DOCA))) +
+      linhaBuf('Caminhões vindo buscar', busc) + (!ruasEncostadas(b).length ? '<p style="color:var(--perigo)">Ponha uma rua encostada na doca para os caminhões chegarem.</p>' : '');
     if (b.t === 'docaf') html += '<h3>Modo</h3><div class="receitas">' + [['carga', 'combustivel', 'Encher caminhões', 'Recebe por cano e abastece o caminhão parado aqui'], ['barril', 'barril', 'Encher barris', BARRIL_UN + ' u = 1 barril, ' + BARRIL_T + ' s, sai na esteira pela porta da frente'], ['descarga', 'combustivel', 'Receber de caminhões', 'O caminhão descarrega aqui e o combustível sai por cano']].map(([m, ic, n, d]) => `<button class="receita" data-modo="${m}" aria-pressed="${b.modo === m}"><b>${icItem(ic)} ${n}</b>${d}</button>`).join('') + '</div>';
-    html += `<h3>Frota · ${b.cams.length} de ${MAX_CAM} · ${nomeCam(b)}</h3>` + b.cams.map((q, i) => {
-      let e = ESTADO[q.st];
-      if (q.st === 'carregando' && q !== k) e = 'Na fila da doca';
-      if (q.bloq) e = 'Rua interrompida';
-      if (q.st === 'descarregando' && (q.travado || 0) > 1) e = 'Preso: destino cheio';
-      return linhaBuf('Caminhão ' + (i + 1) + ' · ' + e, valorItens(icCarga(q.carga), q.carga.length + ' / ' + capCam(q))) + linhaDiesel(q);
-    }).join('');
-    const k0 = k && motivoEspera(b, k);
-    if (k0) html += `<p style="margin-top:8px;color:var(--seguranca)">Esperando para sair: ${escHtml(k0)}.</p>`;
-    html += '<h3>Partida</h3>' + `<div class="linha-buf" style="align-items:center"><span>O caminhão sai</span><select class="sel-saida" id="doca-partida">${PARTIDAS.map(([v, n]) => `<option value="${v}" ${(b.partida || 0) === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>` +
-      `<div class="linha-buf" style="align-items:center"><span>Só se o destino tiver espaço</span><input type="checkbox" id="doca-espaco" ${b.soEspaco ? 'checked' : ''} style="accent-color:var(--seguranca)"></div>`;
-    const pt = b.partida || 0, capT = capCam(b.cams[0] || {}) + ' ' + (b.t === 'docaf' ? 'unidades' : 'itens');
-    html += `<p style="margin-top:6px">${pt > 0 ? `O caminhão sai quando tiver ${pt}% da carga (${Math.ceil((capCam(b.cams[0] || {})) * pt / 100)} de ${capT}) ou quando você mandar.` : pt < 0 ? `O caminhão sai a cada ${-pt >= 60 ? (-pt / 60) + ' min' : -pt + ' s'} com o que tiver carregado (ou cheio antes disso).` : paradasDe(b).length > 1 ? `Com várias paradas, o caminhão só sai cheio (${capT}) ou quando você mandar.` : `O caminhão sai cheio (${capT}), depois de 4 s sem chegar nada novo, ou quando você mandar.`}${b.soEspaco ? ' Só sai se alguma parada tiver lugar para pelo menos 20 itens da carga.' : ''} Com mais caminhões, um carrega enquanto os outros viajam.</p>`;
-    const presos = b.cams.filter(q => q.st === 'descarregando' && (q.travado || 0) > 1);
-    if (presos.length) html += `<p style="color:var(--perigo)">${presos.length === 1 ? 'Um caminhão está esperando' : presos.length + ' caminhões estão esperando'} com carga que o destino não aceita agora.</p><div class="acoes"><button class="btn" id="i-voltar">Voltar com a carga</button><button class="btn perigo" id="i-descartar">Descartar carga</button></div>`;
-    html += `<div class="acoes"><button class="btn" id="i-partir" ${k && k.carga.length && k.rota ? '' : 'disabled'}>Partir agora</button></div>`;
-    html += `<div class="acoes"><button class="btn" id="i-cam-mais" ${b.cams.length < MAX_CAM ? '' : 'disabled'}>+ Caminhão</button><button class="btn" id="i-cam-menos" ${b.cams.length > 1 ? '' : 'disabled'}>− Para garagem</button></div>`;
-    // o × tira pela posição na lista crua, para não errar de parada quando alguma foi demolida
-    const rotaV = rotaDe(b), pars = rotaV.map(o => o.q);
-    html += `<h3>Rota do ${nomeCam(b)} (até 4 paradas)</h3>` +(rotaV.length ? rotaV.map((o, n) => `<div class="linha-buf"><span>${n + 1}. ${escHtml(nomeDe(o.q))}</span>${o.i ? `<button class="btn mini" data-tira="${o.i - 1}" title="Tirar parada">×</button>` : '<b>principal</b>'}</div>`).join('') : '<p>Sem destino.</p>');
-    html += '<p style="margin-top:6px">O caminhão entrega até 20 itens em cada recepção (hub, armazém e contêiner recebem até recusar), segue para a próxima parada e, depois da última, volta com o que sobrou.</p>';
-    html += `<div class="acoes"><button class="btn" id="i-ligar">${ligando === b && !ligandoAdd ? 'Toque no destino…' : 'Trocar destino'}</button><button class="btn" id="i-parada" ${d && pars.length < 4 ? '' : 'disabled'}>${ligando === b && ligandoAdd ? 'Toque na parada…' : '+ Parada'}</button></div>`;
-    if (b.t === 'doca') html += '<h3>Frete de volta</h3>' + `<div class="linha-buf" style="align-items:center"><span>Trazer da última parada</span>${seletorItem('doca-volta', opsItem(VAZIO_VOLTA), b.volta)}</div>`;
-    if (b.t === 'doca' && b.volta) html += `<p style="margin-top:6px">${recepcaoDaDoca(b) ? 'A carga de volta sai na recepção encostada nesta doca.' : '<span style="color:var(--perigo)">Ponha uma Recepção encostada nesta doca para receber o frete de volta.</span>'} Só funciona quando a última parada é um armazém ou contêiner com esse item.</p>`;
+    if (b.t === 'doca' || b.modo === 'carga') html += `<div class="linha-buf" style="align-items:center"><span>Vender no Hub o que ninguém pedir</span><input type="checkbox" id="doca-vende" ${b.semVenda ? '' : 'checked'} style="accent-color:var(--seguranca)"></div>` +
+      `<p style="margin-top:6px">Os caminhões da garagem buscam aqui o que recepções, armazéns e contêineres pedem. ${b.semVenda ? 'Desligado: o resto fica guardado até alguém pedir.' : 'O resto vai para o Hub quando juntar ' + (b.t === 'doca' ? LIMIAR_VENDA + ' itens' : CAP_COMB / 2 + ' unidades') + ' ou depois de 1 minuto.'}</p>`;
+    if (b.t === 'docaf' && b.modo === 'descarga') html += '<p style="margin-top:6px">Recebendo: a doca pede combustível aos caminhões-tanque até 80% do tanque e solta por cano.</p>';
   } else if (b.t === 'conteiner') {
     html += '<h3>Estoque</h3>' + linhaBuf('Tipo guardado', b.tipo ? valorItens(icItem(b.tipo), ITENS[b.tipo].nome) : 'Vazio, aceita qualquer um') + linhaBuf('Quantidade', valorItens(b.tipo ? icItem(b.tipo) : '', b.n + ' / ' + CAP_CONT));
     html += `<div class="prog"><i style="width:${(b.n / CAP_CONT * 100).toFixed(1)}%"></i></div>`;
-    html += linhaDocas(b);
+    html += linhasPedidos(b);
   } else if (b.t === 'recepcao') {
     html += '<h3>Carga</h3>' + linhaBuf('Esperando para sair', valorItens(icCarga(b.fila), b.fila.length + ' / ' + CAP_REC));
     if (b.tanque >= 1 || b._rd) html += linhaItem('combustivel', 'Combustível no tanque, sai por cano', Math.floor(b.tanque || 0) + ' / ' + CAP_REC_COMB);
-    html += linhaDocas(b);
+    html += linhasPedidos(b);
   } else if (b.t === 'filtro') {
     html += '<h3>Item separado</h3>' + `<div class="linha-buf" style="align-items:center"><span>${b.inv ? 'Segue em frente' : 'Sai pelo lado'}</span>${seletorItem('filtro-item', opsItem(VAZIO_FILTRO), b.item)}</div>`;
     html += `<h3>Modo</h3><div class="acoes"><button class="btn" id="i-inv" aria-pressed="${b.inv ? 'true' : 'false'}">${b.inv ? 'Tudo menos este item · trocar' : 'Só este item · trocar'}</button></div>`;
@@ -4063,11 +4380,12 @@ function atualizarInfo() {
   } else if (b.t === 'hidro') {
     html += '<h3>Turbina</h3>' + linhaBuf('Gera', MW_HIDRO + ' MW o tempo todo') + linhaRede(b);
   } else if (b.t === 'garagem') {
-    const nas = S.predios.filter(ehDoca).reduce((a, d) => a + d.cams.length, 0), temF = pesqFeita('petroleo') || b.livresF;
-    html += '<h3>Frota</h3>' + linhaBuf('Caminhões parados aqui', b.livres + (b.livresF || 0) + ' / ' + CAP_GAR) + (temF ? linhaBuf('De combustível', b.livresF || 0) : '') + linhaBuf('Caminhões nas docas', nas);
+    const temF = pesqFeita('petroleo') || b.livresF, trab = S.frota.filter(c => c.job).length;
+    html += '<h3>Frota</h3>' + linhaBuf('Caminhões parados aqui', b.livres + (b.livresF || 0) + ' / ' + capGar()) + (temF ? linhaBuf('De combustível', b.livresF || 0) : '') +
+      linhaBuf('Na rua (todas as garagens)', S.frota.length + (trab ? ' · ' + trab + ' com frete' : '')) + linhaBuf('Fretes entregues', S.fretes || 0);
     html += `<div class="acoes"><button class="btn" id="i-comprar" ${vagaGaragem(b) ? '' : 'disabled'}>Comprar caminhão · ${reais(PRECO_CAM)}</button></div>`;
     if (temF) html += `<div class="acoes"><button class="btn" id="i-comprar-f" ${vagaGaragem(b) ? '' : 'disabled'}>Comprar de combustível · ${reais(PRECO_CAMF)}</button></div>`;
-    html += '<p style="margin-top:8px">Para pôr um caminhão para trabalhar, abra a ficha de uma doca e toque em + Caminhão. A garagem e a doca precisam estar ligadas por rua.</p>';
+    html += '<p style="margin-top:8px">Os caminhões parados aqui saem sozinhos para atender os pedidos de recepções, armazéns, contêineres, postos e geradores, e para levar ao Hub o que as docas juntam. Depois voltam para a garagem com vaga mais perto. Tudo precisa estar ligado por rua.</p>';
   } else if (b.t === 'unificador') {
     const NOMES = ['direita', 'baixo', 'esquerda', 'cima'];
     html += '<h3>Esperando para sair</h3>' + [0, 1, 2, 3].filter(l => l !== b.dir).map(l => linhaBuf('Entrada de ' + NOMES[l], b.buf[l] ? valorItens(icItem(b.buf[l]), ITENS[b.buf[l]].nome) : '—')).join('');
@@ -4077,6 +4395,7 @@ function atualizarInfo() {
     html += ks.length ? ks.map(k => linhaItem(k, ITENS[k].nome, b.est[k])).join('') : '<p style="margin-top:6px">Vazio. Os itens entram pelas 4 portas verdes do lado de trás.</p>';
     html += '<h3>Saídas (lado da frente, da esquerda para a direita)</h3>';
     for (let l = 0; l < 4; l++) html += `<div class="linha-buf" style="align-items:center"><span>Saída ${l + 1}</span>${seletorItem('saida-' + l, opsSaida(b), b.saidas[l])}</div>`;
+    html += linhasPedidos(b);
   } else if (b.t === 'portao') {
     html += '<h3>Portão</h3>' + linhaBuf('Situação', b.aberto ? 'Aberto' : 'Fechado') + `<p style="margin-top:6px">${b.aberto ? 'O caminhão passa.' : 'O caminhão não passa: procura outro caminho ou espera abrir.'}</p>` + `<div class="acoes"><button class="btn" id="i-portao">${b.aberto ? 'Fechar' : 'Abrir'}</button></div>`;
   } else if (b.t === 'expedicao' || b.t === 'hub') {
@@ -4109,6 +4428,14 @@ function atualizarInfo() {
     b.rec = i; b.buf = {}; b.trab = false; b.prog = 0; b.trava = null; atualizarInfo();
     if (lst[i].saiFluido && !b._rdS) avisar(AVISO_FLUIDO + ' Ponha um Cano na porta da frente da refinaria.', false, 4500);
   });
+  corpo.querySelectorAll('[data-ped-tira]').forEach(el => el.onclick = () => { b.pedidos.splice(+el.dataset.pedTira, 1); atualizarInfo(); });
+  const pmais = $('ped-mais'); if (pmais) pmais.onclick = () => { (b.pedidos = b.pedidos || []).push({ item: b.t === 'conteiner' ? b.tipo : null, min: b.t === 'recepcao' ? 50 : 100, max: null }); atualizarInfo(); };
+  (b.pedidos || []).forEach((p, i) => {
+    const it = $('ped-item-' + i); if (it) it.onclick = () => abrirLista(it, opsItem('Escolher item'), p.item, v => { p.item = v || null; });
+    const mn = $('ped-min-' + i); if (mn) mn.onchange = () => { p.min = Math.max(0, Math.round(+mn.value || 0)); mn.blur(); atualizarInfo(); };
+    const mx = $('ped-max-' + i); if (mx) mx.onchange = () => { p.max = mx.value === '' ? null : Math.max(0, Math.round(+mx.value || 0)); mx.blur(); atualizarInfo(); };
+  });
+  const dvd = $('doca-vende'); if (dvd) dvd.onchange = () => { b.semVenda = !dvd.checked; atualizarInfo(); };
   const dp = $('div-prio'); if (dp) dp.onchange = () => { b.prio = dp.value === '' ? null : +dp.value; if (b.prio != null && b.prio === b.sobra) b.sobra = null; dp.blur(); atualizarInfo(); };
   const dsb = $('div-sobra'); if (dsb) dsb.onchange = () => { b.sobra = dsb.value === '' ? null : +dsb.value; if (b.sobra != null && b.sobra === b.prio) b.prio = null; dsb.blur(); atualizarInfo(); };
   const iv = $('i-inv'); if (iv) iv.onclick = () => { b.inv = !b.inv; atualizarInfo(); };
@@ -4366,8 +4693,6 @@ function pontasDaFila(m) {
       }
     } else if (a.t === 'armazem') {
       if (a.total >= CAP_ARM) res.push({ b: a, t: 'Armazém cheio', d: 'Dê saída para os itens dele ou construa outro.' });
-    } else if (a.t === 'doca') {
-      if (!a.cams.length) res.push({ b: a, t: 'Doca sem caminhão', d: 'Chame um caminhão da Garagem na ficha da doca.' });
     } else if (RECEITAS[a.t]) {
       const r = a.rec != null && !a.trava ? RECEITAS[a.t][a.rec] : null;
       if (!r || (S.carencia <= 0 && !(a.en > 0))) continue;
@@ -4400,12 +4725,10 @@ function listarAlertas() {
     if (CONSUMO[b.t] && sem && !(b.en > 0)) l.push({ b, s: 2, t: nome + ' sem energia', d: 'Ponha um poste perto ou aumente a geração.' });
     if (b.t !== 'esteira' && (b._bt || 0) > 3) { const m = motivoSaida(b); if (m) l.push({ b, s: 1, t: nome + ': saída bloqueada', d: m }); }
     if (b.t === 'esteira' && b.recusa) l.push({ b, s: 1, t: 'Esteira parada', d: b.recusa });
-    if (ehDoca(b)) {
-      const presos = b.cams.filter(q => q.st === 'descarregando' && (q.travado || 0) > 1).length;
-      if (presos) l.push({ b, s: 2, t: presos + ' caminhão(ões) preso(s)', d: 'O destino está cheio ou não aceita a carga.' });
-      if (b.cams.some(q => q.st === 'entregando' && q.esp > 3)) l.push({ b, s: 1, t: 'Frete de volta parado', d: 'A recepção encostada na doca está cheia: dê saída para os itens dela.' });
-      if (!b.dest && (b.t === 'doca' || b.modo === 'carga')) l.push({ b, s: 1, t: 'Doca sem destino', d: 'Abra a ficha e toque em Trocar destino.' });
-      if (dieselLigado()) { const n = b.cams.filter(q => combDe(q) <= 0).length; if (n) l.push({ b, s: 2, t: n + ' caminhão(ões) sem diesel', d: 'Andam a 40% da velocidade. Construa um Posto ligado por rua e leve combustível até ele.' }); }
+    if (ehDoca(b) && !ruasEncostadas(b).length) l.push({ b, s: 1, t: nome + ' sem rua', d: 'Os caminhões da garagem só buscam carga em doca encostada numa rua.' });
+    if (PEDE_ITENS(b.t) && b._mot) for (const it in b._mot) {
+      const m = b._mot[it];
+      if (m !== 'Caminhão a caminho' && m !== 'Limite de caminhões cheio') l.push({ b, s: 1, t: nome + ': pedido de ' + ITENS[it].nome.toLowerCase() + ' parado', d: m + '.' });
     }
     if (b.t === 'usina' && b.carvao < 1 && sem && redeInfo.dem > 0) l.push({ b, s: 2, t: 'Usina sem carvão', d: 'Leve carvão até ela por esteira.' });
     if (b.t === 'poco' && !b._rd) l.push({ b, s: 1, t: 'Extrator de petróleo sem cano', d: 'Ligue um cano na saída: casa de baixo do lado direito.' });
