@@ -168,6 +168,25 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
 .acoes { display: flex; gap: 6px; margin-top: 12px; }
 .acoes .btn { flex: 1; }
 .btn.mini { min-width: 0; padding: 0 8px; font-size: 13px; flex: none; }
+/* máquina aberta: a ficha vira um painel no meio da tela, com entrada, eficiência e saída */
+#info.centro { left: 50%; top: 50%; right: auto; transform: translate(-50%, -50%); width: 620px; max-width: calc(100% - 32px); max-height: calc(100% - 200px); }
+.pp { display: grid; grid-template-columns: 1fr 150px 1fr; gap: 8px; margin: 8px 0 6px; }
+.pp-col { background: var(--painel-2); border: 1px solid var(--linha); border-radius: 3px; padding: 6px 8px; min-width: 0; }
+.pp-col h4, .pp-meio h4 { margin: 0 0 4px; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--mudo); font-weight: 600; }
+.pp-it { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 6px; padding: 4px 0; border-top: 1px dashed var(--linha); font-size: 12px; line-height: 1.3; }
+.pp-it:first-of-type { border-top: 0; }
+.pp-it .ic-item { width: 22px; height: 22px; }
+.pp-it small { display: block; color: var(--mudo); font-size: 11px; }
+.pp-it b { font-family: var(--f-num); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pp-it b small { font-family: var(--f-texto); }
+.pp-meio { background: var(--chao); border: 1px solid var(--linha); border-radius: 3px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.pp-ef { font-family: var(--f-num); font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+.pp-ef.ok { color: var(--ok); } .pp-ef.med { color: var(--seguranca); } .pp-ef.mal { color: var(--perigo); }
+.pp-meio small { font-size: 11px; color: var(--mudo); }
+.pp-meio .prog { width: 100%; margin-top: 4px; }
+.pp-diag { margin: 0 0 8px !important; padding: 6px 8px; border-left: 3px solid var(--seguranca); background: var(--painel-2); color: var(--texto) !important; font-size: 12px !important; }
+.pp-diag.ok { border-left-color: var(--ok); } .pp-diag.mal { border-left-color: var(--perigo); }
+@media (max-width: 640px) { #info.centro { transform: none; left: max(16px, env(safe-area-inset-left, 0px)); top: auto; } .pp { grid-template-columns: 1fr; } }
 #fechar-info { position: absolute; top: 8px; right: 8px; min-width: 0; padding: 2px 8px; }
 
 #aviso {
@@ -2353,6 +2372,7 @@ function passo(dt) {
       }
     } else if (b.t === 'extrator') {
       if (b.sai && b.saiN < 4) { b.prog += dt * energia(b) * fatorEsc(b); if (b.prog >= 1.5) { b.prog -= 1.5; b.saiN++; contar('prod', b.sai, 1); } }
+      medirEf(b, b.sai && b.saiN < 4 ? energia(b) : 0, b.sai && b.saiN >= 4 ? 's' : null, dt);
       empurrar(b);
     } else if (b.t === 'posto') {
       // consumo por minuto, média suave para a ficha
@@ -2452,6 +2472,7 @@ function passo(dt) {
           }
         }
       }
+      medirEf(b, r && b.trab ? energia(b) : 0, !r || b.trab ? null : saidaCheia(b, r) ? 's' : 'f', dt);
       empurrar(b);
     }
   }
@@ -4124,10 +4145,63 @@ function selecionar(x, y) {
   if (!b && dentro(x, y) && !dono(x, y)) b = { t: 'lote', l: loteDe(x, y), x, y };
   if (!b) { const j = (S.petroleo || []).find(q => x >= q.x && x <= q.x + 1 && y >= q.y && y <= q.y + 1); if (j) b = { t: 'jazida', x: j.x, y: j.y, j }; }
   if (!b) { fecharInfo(); return; }
-  sel = b; $('info').hidden = false; $('info-corpo').dataset.k = ''; atualizarInfo();
+  sel = b; $('info').hidden = false; $('info').classList.toggle('centro', ehMaquina(b)); $('info-corpo').dataset.k = ''; atualizarInfo();
 }
 function fecharInfo() { fecharLista(); sel = null; $('info').hidden = true; }
 
+// eficiência: média dos últimos ~20 s de quanto a máquina andou no ritmo da receita (sem contar o Escritório);
+// ff, fs e fe guardam quanto do tempo ela ficou sem material, com a saída cheia ou com pouca energia
+function medirEf(b, v, causa, dt) {
+  // primeira medida: começa do estado atual, sem a média partir do zero
+  if (b.ef == null) { b.ef = v; b.ff = causa === 'f' ? 1 : 0; b.fs = causa === 's' ? 1 : 0; b.fe = v > 0 && v < 1 ? 1 - v : 0; return; }
+  const k = Math.min(1, dt / 20);
+  b.ef = (b.ef || 0) + (v - (b.ef || 0)) * k;
+  b.ff = (b.ff || 0) + ((causa === 'f' ? 1 : 0) - (b.ff || 0)) * k;
+  b.fs = (b.fs || 0) + ((causa === 's' ? 1 : 0) - (b.fs || 0)) * k;
+  b.fe = (b.fe || 0) + ((v > 0 && v < 1 ? 1 - v : 0) - (b.fe || 0)) * k;
+}
+function saidaCheia(b, r) { return (b.saiN > 0 && b.sai !== r.sai) || b.saiN + r.n > SAICAP || (r.saiFluido && (b.tanqueF || 0) + r.n > CAP_SAIDA_REF); }
+const ehMaquina = b => !!(b && (RECEITAS[b.t] || b.t === 'extrator'));
+function fmtMin(v) { return (Math.round(v * 10) / 10).toLocaleString('pt-BR'); }
+function painelProducao(b) {
+  const r = RECEITAS[b.t] && b.rec != null && !b.trava ? RECEITAS[b.t][b.rec] : null;
+  const ef = b.ef || 0, bonus = fatorEsc(b), real = ef * bonus;
+  const pct = Math.round(ef * 100), cls = pct >= 90 ? 'ok' : pct >= 50 ? 'med' : 'mal';
+  const it = (k, nome, nominal, det) => `<div class="pp-it">${icItem(k)}<span>${nome}<small>${det}</small></span><b>${fmtMin(nominal)}/min<small><br>agora ${fmtMin(nominal * real)}</small></b></div>`;
+  let ent = '', sai = '', ciclo = '', agora;
+  if (b.t === 'extrator') {
+    sai = b.sai ? it(b.sai, ITENS[b.sai].nome, 40 * bonus, 'esperando sair: ' + b.saiN + ' / 4') : '';
+    ent = '<p style="margin:0">Tira direto da jazida.</p>';
+    ciclo = '1,5 s por item'; agora = !b.sai ? 'Sem jazida embaixo' : b.saiN >= 4 ? 'Saída cheia' : energia(b) <= 0 ? 'Sem energia' : 'Trabalhando';
+  } else if (r) {
+    const vez = 60 / r.t * bonus;
+    for (const [k, v] of Object.entries(r.ent)) ent += it(k, ITENS[k].nome, v * vez, v + ' por ciclo · tem ' + (b.buf[k] || 0));
+    if (r.fluido) ent += it('combustivel', 'Petróleo bruto', r.fluido * vez, r.fluido + ' u por ciclo · tanque ' + Math.floor(b.tanque || 0));
+    sai = it(r.sai, ITENS[r.sai].nome, r.n * vez, r.n + ' por ciclo · ' + (r.saiFluido ? 'no tanque ' + Math.floor(b.tanqueF || 0) : 'esperando sair: ' + b.saiN));
+    ciclo = r.t + ' s por ciclo';
+    const falta = Object.entries(r.ent).filter(([k, v]) => (b.buf[k] || 0) < v).map(([k]) => ITENS[k].nome.toLowerCase());
+    if (r.fluido && (b.tanque || 0) < r.fluido) falta.push('petróleo');
+    agora = b.trab ? (energia(b) <= 0 ? 'Sem energia' : 'Trabalhando') : saidaCheia(b, r) ? 'Saída cheia' : falta.length ? 'Esperando ' + falta.join(', ') : 'Começando';
+  } else {
+    ent = sai = '<p style="margin:0">—</p>';
+    agora = b.trava ? 'Travada: entrou item errado' : b.t === 'forno' ? 'Esperando o primeiro material' : 'Escolha uma receita';
+  }
+  let diag, dc = '';
+  if (b.trava) { diag = 'Máquina travada. Veja abaixo como destravar.'; dc = 'mal'; }
+  else if (!r && b.t !== 'extrator') diag = 'A eficiência aparece depois que a máquina começa a trabalhar.';
+  else if (pct >= 95) { diag = 'Trabalhando no ritmo máximo: o material chega e a produção sai na medida.'; dc = 'ok'; }
+  else {
+    const top = Math.max(b.ff || 0, b.fs || 0, b.fe || 0), p = Math.round(top * 100) + '%';
+    if (top < 0.05) diag = 'Medindo… a eficiência é a média dos últimos 20 segundos.';
+    else if (top === b.fs) { diag = `Sobrando produção: a saída ficou cheia em ${p} do tempo. Dê mais saída (esteira mais rápida, outro destino) ou use menos máquinas.`; dc = 'mal'; }
+    else if (top === b.ff) { diag = `Faltando material em ${p} do tempo: chega menos do que a máquina consome. Leve mais ingredientes ou divida entre menos máquinas.`; dc = 'mal'; }
+    else { diag = `Falta energia: a máquina andou ${p} mais devagar. Construa mais geração ou ligue mais postes.`; dc = 'mal'; }
+  }
+  const prog = r && b.trab ? b.prog / r.t : b.t === 'extrator' ? (b.prog || 0) / 1.5 : 0;
+  return `<div class="pp"><div class="pp-col"><h4>Entrada</h4>${ent}</div>` +
+    `<div class="pp-meio"><h4>Eficiência</h4><div class="pp-ef ${cls}">${pct}%</div><small>${agora}</small><div class="prog"><i style="width:${(prog * 100).toFixed(0)}%"></i></div><small>${ciclo}${bonus > 1 ? ' · +' + Math.round((bonus - 1) * 100) + '% Escritório' : ''}</small></div>` +
+    `<div class="pp-col"><h4>Saída</h4>${sai}</div></div><p class="pp-diag ${dc}">${diag}</p>`;
+}
 function linhaEnergia(b) {
   if (S.dev) return linhaBuf('Energia', 'Infinita · modo DEV');
   if (S.carencia > 0) return linhaBuf('Energia', 'Ligação provisória');
@@ -4297,7 +4371,7 @@ function atualizarInfo() {
   if (!sel) return;
   const b = sel, p = PREDIOS[b.t], corpo = $('info-corpo');
   if (b.t === 'lote' || b.t === 'area' || b.t === 'jazida') { infoEspecial(b, corpo); return; }
-  let html = `<h2>${b.nome ? escHtml(b.nome) : p.nome}</h2>${b.nome ? `<p style="margin:0 0 4px;color:var(--seguranca)">${p.nome}</p>` : ''}<p>${p.desc}</p>`;
+  let html = `<h2>${b.nome ? escHtml(b.nome) : p.nome}</h2>${b.nome ? `<p style="margin:0 0 4px;color:var(--seguranca)">${p.nome}</p>` : ''}${ehMaquina(b) ? painelProducao(b) : `<p>${p.desc}</p>`}`;
   if (NOMEAVEL(b.t)) html += `<div class="linha-buf" style="align-items:center"><span>Nome</span><input type="text" class="sel-saida" id="i-nome" maxlength="20" placeholder="Dar um nome…" value="${escHtml(b.nome || '')}" style="width:150px"></div>`;
   const lst = RECEITAS[b.t];
   if (lst) {
