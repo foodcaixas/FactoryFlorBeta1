@@ -51,6 +51,7 @@ Leia este arquivo antes de mexer no jogo. Ele resume as regras, decisões e o es
 
 ## Progressão
 - 7 contratos fixos liberam prensa, trefila e montadora. Depois vêm contratos sem fim, cada vez maiores, com prazo e bônus.
+- Esteiras: sprites em assets/esteiras (1 amarela = lenta, 2 vermelha = normal, 3 azul = rápida). A curva é gerada no código dobrando o sprite reto (gerarCurvaEst).
 - Pesquisa (tecla J), com pontos de vendas (1 a cada R$ 20) e de contratos (10): esteira normal e rápida, usina, bomba e canos, túnel, armazém, garagem, aço, hidrelétrica, placa de circuito, geladeira.
 
 ## Interface

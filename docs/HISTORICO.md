@@ -12,3 +12,4 @@
 - **v23**: sprite novo da usina; bomba d'água e canos (usina com água = 2×); usina/garagem/hidrelétrica giram no centro; pesquisa própria para a bomba.
 - **v24**: terreno natural procedural no estilo da imagem de referência.
 - **v25**: enfeites do terreno com a folha de sprites do dono; pasta de assets organizada.
+- **v26**: esteiras com sprites novos (lenta amarela, normal vermelha, rápida azul); as curvas usam o mesmo sprite dobrado em volta do canto.
