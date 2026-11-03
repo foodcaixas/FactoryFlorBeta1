@@ -4461,7 +4461,7 @@ function ambPassoOper(dt) {
     for (const b of maqs) if (b.trava && !amb.oper.some(w => w.alerta && w.alvo === b)) {
       let melhor = null, md = Infinity; const c = centroDe(b);
       for (const w of amb.oper) { if (w.alerta || w.st === 'casa') continue; const d = Math.hypot(w.x - c.x, w.y - c.y); if (d < md) { md = d; melhor = w; } }
-      if (melhor) { melhor.alerta = true; irPara(melhor, b); }
+      if (melhor) { melhor.alerta = true; operIrPara(melhor, b); }
     }
     amb.maqs = maqs;
   }
@@ -4474,7 +4474,7 @@ function ambPassoOper(dt) {
       w.espera -= dt; if (w.espera > 0 && !w.alerta) return;
       const m = proxMaq(w, i, maqs); if (!m) return;
       const c = centroDe(w.lar); w.x = c.x; w.y = c.y;
-      irPara(w, m); return;
+      operIrPara(w, m); return;
     }
     if (w.st === 'anda') {
       const p = w.rota[w.ri];
@@ -4487,8 +4487,8 @@ function ambPassoOper(dt) {
     if (w.st === 'trab') {
       w.t -= dt;
       if (w.alerta) return; // fica parado com o balão até destravar
-      if (!trabalhar) { w.espera = rnd() * 10; irPara(w, w.lar, true); return; }
-      if (w.t <= 0 || !S.predios.includes(w.alvo)) { const m = proxMaq(w, i, maqs); if (m) irPara(w, m); else w.t = 5; }
+      if (!trabalhar) { w.espera = rnd() * 10; operIrPara(w, w.lar, true); return; }
+      if (w.t <= 0 || !S.predios.includes(w.alvo)) { const m = proxMaq(w, i, maqs); if (m) operIrPara(w, m); else w.t = 5; }
     }
   });
 }
@@ -4499,7 +4499,7 @@ function proxMaq(w, i, maqs) {
   const op = g.filter(m => m !== w.alvo);
   return (op.length ? op : g)[Math.floor(rnd() * (op.length || g.length))];
 }
-function irPara(w, b, casa) {
+function operIrPara(w, b, casa) {
   const sx = Math.max(0, Math.min(W - 1, Math.floor(w.x / T))), sy = Math.max(0, Math.min(H - 1, Math.floor(w.y / T)));
   const r = caminhoPe(sx, sy, b), c = centroDe(b);
   w.rota = r || [{ x: Math.floor(c.x / T), y: Math.floor(c.y / T) }];
