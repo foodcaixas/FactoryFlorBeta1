@@ -53,7 +53,8 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
 .leitura b { font-family: var(--f-num); font-weight: 500; font-size: 17px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #dinheiro { color: var(--seguranca); }
 #energia { font-size: 15px; }
-#energia.falta { color: var(--perigo); }
+#energia.falta, #operarios.falta { color: var(--perigo); }
+#operarios { font-size: 15px; }
 
 #contrato { padding: 8px 12px; width: 300px; max-width: 100%; }
 #contrato .topo { display: flex; justify-content: space-between; gap: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--mudo); }
@@ -271,6 +272,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <div class="leitura"><span>Caixa</span><b id="dinheiro">R$ 0</b></div>
       <div class="leitura"><span>Faturamento</span><b id="taxa">R$ 0/min</b></div>
       <div class="leitura"><span>Energia</span><b id="energia">—</b></div>
+      <div class="leitura" title="Máquinas em uso / vagas: cada 4 máquinas precisam de 1 operário e cada casa traz 2."><span>Máquinas</span><b id="operarios">—</b></div>
     </div>
     <section id="contrato" class="placa" aria-live="polite"></section>
     <div id="controles" class="placa">
@@ -371,6 +373,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <p>Barril de Combustível: na ficha da Doca de Fluidos, escolha Encher barris e ponha uma esteira na porta da frente. Cada barril leva 10 unidades e é um item comum: anda em esteira, em caminhão comum e cabe em contêiner, armazém e recepção. No Hub, vale 10 unidades em preço e nos contratos de combustível.</p>
       <p>Forno Industrial (tecla /, liberado na pesquisa de Aço): ocupa 3×2 casas e tem duas entradas nos cantos de trás, para assar o que combina materiais. O aço é feito nele: leve lingotes de ferro e carvão por uma entrada cada, ou juntos pela mesma. O forno comum não faz mais aço.</p>
       <p>Indústria de Defesa (Pesquisa, depois de Placa de circuito): a Prensa faz peças usinadas (de aço), estojos metálicos (de lingote de cobre) e pólvora (de minério de enxofre, as jazidas amarelas, direto do extrator) e a Montadora faz componentes de armas e munição. Entregue na Central Militar (tecla [; R gira), pelos 3 portões com seta ou de caminhão. Ela paga mais que o Hub e traz contratos próprios: atrasar custa uma multa leve e o bônus, mas o contrato continua aberto.</p>
+      <p>Operários: cada 4 máquinas de produção (extrator, fornos, prensa, trefila, montadora, refinaria e extrator de petróleo) precisam de 1 operário. Você começa com 1 encarregado, que dá para 4 máquinas; cada Casa (tecla ') traz mais 2 operários, ou seja, mais 8 máquinas. O contador Máquinas no topo mostra quantas você tem e quantas cabem. De dia os operários andam até as máquinas; quando uma trava, um deles vai até ela e fica com um balão de "!". À noite voltam para casa.</p>
       <p>Ambiente: o dia passa em uns 9 minutos de jogo. À noite a tela escurece e só ficam claros os postes, o Hub, as máquinas trabalhando e os faróis dos caminhões. Máquina que solta fumaça, vapor ou faísca está trabalhando; parada, fica quieta. Pássaros pousam nos cantos livres e fogem dos caminhões, barcos descem o rio e vacas e cavalos pastam nos lotes à venda até você comprar. Nada disso muda o jogo e dá para desligar em Configurações.</p>
       <div class="acoes">
         <button class="btn perigo" id="b-novo">Novo jogo</button>
@@ -390,7 +393,7 @@ const DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
 const VEL = 0.8, GAP = 0.34, SAICAP = 8, CHAVE = 'chao-de-fabrica-v3', DEV_CAIXA = 1e9;
 // v3: extrator ocupa 2×2 casas; saves das versões anteriores são apagados
 try { for (const v of ['v1', 'v2']) for (const k of ['', '-ajuda', '-moldes', '-mapa']) localStorage.removeItem('chao-de-fabrica-' + v + k); } catch (e) {}
-const SEM_GIRO = ['poste', 'bomba', 'cano', 'poco', 'posto', 'gerador', 'hub', 'escritorio', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'];
+const SEM_GIRO = ['casa', 'poste', 'bomba', 'cano', 'poco', 'posto', 'gerador', 'hub', 'escritorio', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'];
 const EH_PORTAO = t => t === 'portao' || t === 'deslizante';
 // 2×2 que giram no próprio centro (o desenho parte da casa 0,0)
 const GIRA_2X2 = ['usina', 'garagem', 'hidro', 'extrator'];
@@ -490,6 +493,7 @@ const PREDIOS = {
   central:   { nome: 'Central Militar', preco: 5000, desc: 'Ocupa 6×4 casas. Compra componentes de armas e munição, pagando mais que o Hub. Recebe pelos 3 portões com seta, com a esteira entrando de frente (o portão do meio pega as duas casas do centro), ou de caminhão, por uma rua encostada. Mostra o contrato militar ativo.' },
   docaf:     { nome: 'Doca de Fluidos', preco: 700, desc: 'Ocupa 3×2 casas e guarda 500 unidades. Enchendo caminhões, recebe combustível por cano e oferece aos caminhões-tanque da garagem, que levam aos postos, geradores e docas que pedem (ou vendem no Hub). Recebendo de caminhões, faz o contrário: pede combustível e solta por cano. Enchendo barris, transforma 10 unidades em 1 barril, que sai pela porta da frente, na esteira. Para usar caminhões, precisa encostar numa rua.' },
   hidro:     { nome: 'Hidrelétrica', preco: 900, desc: 'Ocupa 2×2 casas na beira do rio: precisa encostar na água. Gera 12 MW o tempo todo, sem combustível. Ligue com postes como a usina.' },
+  casa:      { nome: 'Casa', preco: 120, desc: 'Ocupa 2×2 casas e abriga 2 operários. Cada 4 máquinas de produção (extrator, fornos, prensa, trefila, montadora, refinaria e extrator de petróleo) precisam de 1 operário. De dia os operários andam até as máquinas e, à noite, voltam para casa.' },
   garagem:   { nome: 'Garagem', preco: 300, desc: 'Ocupa 2×2 casas e guarda até 6 caminhões. Os caminhões parados aqui atendem sozinhos os pedidos de recepções, armazéns e contêineres e levam ao Hub o que as docas juntam. A primeira garagem vem com um caminhão. Precisa encostar numa rua.' },
   cerca:     { nome: 'Cerca', preco: 10, desc: 'Cerca de tela para organizar a fábrica. Ocupa a casa e liga sozinha nas cercas e portões vizinhos. Arraste para traçar.' },
   barreira:  { nome: 'Barreira', preco: 15, desc: 'Barreira de proteção com faixas de perigo. Ocupa a casa e liga sozinha nas barreiras vizinhas. Arraste para traçar.' },
@@ -514,8 +518,8 @@ const PREDIOS = {
   ponte:     { nome: 'Ponte', preco: 25, desc: 'Rua elevada. Passa por cima de esteiras (os itens continuam correndo embaixo) e se liga às ruas normais pelas pontas.' },
   rua:       { nome: 'Rua', preco: 5, desc: 'Asfalto para o caminhão. A doca e o destino precisam encostar numa rua, e as duas pontas precisam estar ligadas.' },
 };
-const TECLA = { hub: 'H', esteira: '1', extrator: '2', divisor: '3', forno: '4', prensa: '5', trefila: '6', montadora: '7', unificador: '8', doca: '9', recepcao: '0', conteiner: 'C', armazem: 'G', rua: 'E', ponte: 'P', filtro: 'F', tunel: 'T', poste: 'L', usina: 'U', garagem: 'K', hidro: 'Y', bomba: 'B', cano: 'N', cerca: 'Z', poco: '-', refinaria: '=', docaf: '.', escritorio: ',', posto: ';', gerador: ']', central: '[', fornoind: '/' };
-const ORDEM = ['hub', 'esteira', 'extrator', 'divisor', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'unificador', 'filtro', 'poste', 'bomba', 'poco', 'rua', 'doca', 'garagem', 'recepcao', 'conteiner', 'armazem', 'escritorio', 'central', 'cerca'];
+const TECLA = { hub: 'H', esteira: '1', extrator: '2', divisor: '3', forno: '4', prensa: '5', trefila: '6', montadora: '7', unificador: '8', doca: '9', recepcao: '0', conteiner: 'C', armazem: 'G', rua: 'E', ponte: 'P', filtro: 'F', tunel: 'T', poste: 'L', usina: 'U', garagem: 'K', casa: "'", hidro: 'Y', bomba: 'B', cano: 'N', cerca: 'Z', poco: '-', refinaria: '=', docaf: '.', escritorio: ',', posto: ';', gerador: ']', central: '[', fornoind: '/' };
+const ORDEM = ['hub', 'esteira', 'extrator', 'divisor', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'unificador', 'filtro', 'poste', 'bomba', 'poco', 'rua', 'doca', 'garagem', 'casa', 'recepcao', 'conteiner', 'armazem', 'escritorio', 'central', 'cerca'];
 // botões da bancada que abrem um menu com variações
 const GRUPOS = { esteira: ['esteira', 'tunel'], poste: ['poste', 'usina', 'hidro'], bomba: ['bomba', 'cano'], poco: ['poco', 'refinaria', 'docaf', 'posto', 'gerador', 'cano'], rua: ['rua', 'ponte'], cerca: ['cerca', 'barreira', 'portao', 'deslizante', 'grade'] };
 const OPCOES = {
@@ -526,7 +530,7 @@ const OPCOES = {
   poco: [{ t: 'poco' }, { t: 'refinaria' }, { t: 'docaf' }, { t: 'posto' }, { t: 'gerador' }, { t: 'cano' }],
   cerca: [{ t: 'cerca' }, { t: 'barreira' }, { t: 'portao' }, { t: 'deslizante' }, { t: 'grade' }],
 };
-const INICIAIS = ['hub', 'esteira', 'extrator', 'divisor', 'forno', 'unificador', 'doca', 'recepcao', 'conteiner', 'rua', 'ponte', 'armazem', 'filtro', 'tunel', 'poste', 'usina', 'garagem', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'];
+const INICIAIS = ['casa', 'hub', 'esteira', 'extrator', 'divisor', 'forno', 'unificador', 'doca', 'recepcao', 'conteiner', 'rua', 'ponte', 'armazem', 'filtro', 'tunel', 'poste', 'usina', 'garagem', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'];
 // pesquisa: pontos vêm das vendas (1 ponto a cada R$ 20) e dos contratos (10 pontos)
 const PESQUISAS = [
   { id: 'est2', nome: 'Esteira normal', custo: 15, desc: 'Esteira 2× mais rápida (R$ 8).' },
@@ -981,7 +985,7 @@ function celulas(b, dir) {
     for (let a = 0; a < 2; a++) for (let l = -1; l <= 1; l++) out.push({ x: b.x + a * DX[d] + l * px, y: b.y + a * DY[d] + l * py, a, l });
     return out;
   }
-  if (b.t === 'usina' || b.t === 'garagem' || b.t === 'hidro' || b.t === 'extrator' || b.t === 'poco' || b.t === 'posto' || b.t === 'gerador' || b.t === 'jazida') return [{ x: b.x, y: b.y },{ x: b.x + 1, y: b.y }, { x: b.x, y: b.y + 1 }, { x: b.x + 1, y: b.y + 1 }];
+  if (b.t === 'casa' || b.t === 'usina' || b.t === 'garagem' || b.t === 'hidro' || b.t === 'extrator' || b.t === 'poco' || b.t === 'posto' || b.t === 'gerador' || b.t === 'jazida') return [{ x: b.x, y: b.y },{ x: b.x + 1, y: b.y }, { x: b.x, y: b.y + 1 }, { x: b.x + 1, y: b.y + 1 }];
   return DUPLA(b.t) ? [{ x: b.x, y: b.y }, { x: b.x + DX[d], y: b.y + DY[d] }] : [{ x: b.x, y: b.y }];
 }
 // casa logo depois da saída do prédio
@@ -1141,7 +1145,7 @@ function entrega(b, item, d, x, y) {
     case 'usina':
       if (item !== 'carvao' || b.carvao >= 10) return false;
       b.carvao++; return true;
-    case 'poste': case 'garagem': case 'hidro': case 'bomba': case 'cano': case 'cerca': case 'barreira': case 'portao': case 'deslizante': return false;
+    case 'casa': case 'poste': case 'garagem': case 'hidro': case 'bomba': case 'cano': case 'cerca': case 'barreira': case 'portao': case 'deslizante': return false;
     case 'unificador': {
       if (d === (b.dir + 2) % 4) return false;
       const lado = (d + 2) % 4;
@@ -1239,7 +1243,7 @@ function motivoRecusa(x, y, d, item) {
       if (d !== a.dir) return 'O túnel só recebe por trás.';
       return parDe(a) ? null : 'O túnel ainda não tem saída. Ponha outra peça de túnel à frente, na mesma direção.';
     case 'usina': return item && item !== 'carvao' ? 'A usina só aceita carvão.' : null;
-    case 'poste': case 'garagem': case 'hidro': case 'bomba': case 'cano': case 'cerca': case 'barreira': case 'portao': case 'deslizante': return 'Essa peça não recebe itens de esteira.';
+    case 'casa': case 'poste': case 'garagem': case 'hidro': case 'bomba': case 'cano': case 'cerca': case 'barreira': case 'portao': case 'deslizante': return 'Essa peça não recebe itens de esteira.';
     case 'unificador': return d === (a.dir + 2) % 4 ? 'Entrando pela saída do unificador.' : null;
     case 'extrator': case 'recepcao': case 'rua': return 'Esse prédio não recebe itens de esteira.';
     case 'poco': return 'O extrator de petróleo não recebe itens de esteira.';
@@ -2535,6 +2539,7 @@ function construir(t, x, y, dir) {
   if (t === 'bomba' && !beiraRio(cel)) { avisar("A bomba d'água precisa encostar no rio.", false, 2500); return false; }
   const p = PREDIOS[t];
   if (!S.liberados.includes(t)) { avisar(p.nome + ' ainda está bloqueado.'); return false; }
+  if (MAQ_OPER.includes(t) && !S.dev) { const o = opers(); if (o.maq + 1 > o.vagasMaq) { avisar('Faltam operários: cada 4 máquinas precisam de 1 operário. Construa uma Casa (tecla \') para trazer mais 2.', false, 3500); return false; } }
   if (t === 'hub' && S.predios.some(o => o.t === 'hub')) { avisar('Só existe um Hub central. Para mudar de lugar, demola o atual primeiro.'); return false; }
   const preco = precoDe(t, nivelEst);
   if (S.dinheiro < preco) { avisar('Falta dinheiro: ' + p.nome + ' custa ' + reais(preco) + '.'); return false; }
@@ -2736,7 +2741,7 @@ function moldePosto(hx, hy) {
   const k = rotCol, out = [];
   for (const m of molde) {
     const cel = celulas({ t: m.t, x: m.x, y: m.y }, m.dir).map(c => girarPt(c, k));
-    const fixo = m.t === 'usina' || m.t === 'garagem' || m.t === 'ponte' || m.t === 'hidro' || m.t === 'extrator' || m.t === 'poco' || m.t === 'posto' || m.t === 'gerador' || m.t === 'escritorio';
+    const fixo = m.t === 'casa' || m.t === 'usina' || m.t === 'garagem' || m.t === 'ponte' || m.t === 'hidro' || m.t === 'extrator' || m.t === 'poco' || m.t === 'posto' || m.t === 'gerador' || m.t === 'escritorio';
     const anc = fixo ? { x: Math.min(...cel.map(c => c.x)), y: Math.min(...cel.map(c => c.y)) } : girarPt(m, k);
     out.push({ m, x: anc.x, y: anc.y, dir: fixo && !GIRA_2X2.includes(m.t) ? 0 : (m.dir + k) % 4, cel, par: m.par && girarPt(m.par, k), dest: m.dest && girarPt(m.dest, k), paradas: (m.paradas || []).map(p => girarPt(p, k)) });
   }
@@ -3041,7 +3046,7 @@ function setaSaida(c, h) {
 function desenharPredio(c, b, cx, cy, s, tm) {
   const h = s / 2, t = b.t;
   c.save(); c.translate(cx, cy);
-  if (!['esteira', 'rua', 'conteiner', 'forno', 'prensa', 'montadora', 'hub', 'armazem', 'poste', 'usina', 'garagem', 'tunel', 'hidro', 'cano', 'extrator', 'poco', 'refinaria', 'docaf', 'fornoind', 'posto', 'gerador', 'escritorio', 'central', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'].includes(t)) { c.fillStyle = 'rgba(0,0,0,.28)'; rrect(c, -h + 3, -h + 4, s - 4, s - 4, 4); c.fill(); }
+  if (!['casa', 'esteira', 'rua', 'conteiner', 'forno', 'prensa', 'montadora', 'hub', 'armazem', 'poste', 'usina', 'garagem', 'tunel', 'hidro', 'cano', 'extrator', 'poco', 'refinaria', 'docaf', 'fornoind', 'posto', 'gerador', 'escritorio', 'central', 'cerca', 'barreira', 'portao', 'deslizante', 'grade'].includes(t)) { c.fillStyle = 'rgba(0,0,0,.28)'; rrect(c, -h + 3, -h + 4, s - 4, s - 4, 4); c.fill(); }
   if (GIRA_2X2.includes(t)) { c.translate(h, h); c.rotate((b.dir || 0) * Math.PI / 2); c.translate(-h, -h); }
   else c.rotate((b.dir || 0) * Math.PI / 2);
   const k = s / 32;
@@ -3102,6 +3107,7 @@ function desenharPredio(c, b, cx, cy, s, tm) {
       } else { c.fillStyle = '#c9362a'; rrect(c, -15, -15, 62, 62, 5); c.fill(); setaSaida(c, 52); }
       break;
     }
+    case 'casa': desenharCasa(c, b, tm); break;
     case 'posto': {
       // 2×2: pátio, cobertura com faixa laranja, duas bombas e medidor de nível
       c.fillStyle = 'rgba(0,0,0,.3)'; rrect(c, -12, -11, 60, 60, 5); c.fill();
@@ -3895,6 +3901,7 @@ function desenhar() {
   // itens parados no divisor
   for (const b of S.predios) if (b.t === 'divisor' && b.fila.length && vis(b)) desenharItem(ctx, b.fila[0].i, b.x * T + T / 2, b.y * T + T / 2, 5);
   ambMeio(ctx);
+  desenharOperarios(ctx);
 
   // lotes que ainda não são do jogador
   for (let l = 0; l < LCOLS * LROWS; l++) {
@@ -4039,10 +4046,10 @@ function ambNaPlaca(l, x, y) {
 
 function ambPasso(dt) {
   amb.t += dt;
-  if (!ambCfg.vida || !S) { amb.fum.length = 0; amb.fais.length = 0; amb.bandos.length = 0; amb.barcos.length = 0; return; }
+  if (!S) return;
   const v = amb.vista;
   // máquinas visíveis que soltam fumaça ou acendem à noite
-  amb.fontesT -= dt;
+  amb.fontesT -= Math.max(dt, 1 / 60);
   if (amb.fontesT <= 0) {
     amb.fontesT = 0.25; amb.fontes = [];
     const m = 4 * T;
@@ -4054,6 +4061,7 @@ function ambPasso(dt) {
       amb.fontes.push({ b, x: c.x, y: c.y });
     }
   }
+  if (!ambCfg.vida) { amb.fum.length = 0; amb.fais.length = 0; amb.bandos.length = 0; amb.barcos.length = 0; return; }
   if (dt > 0) for (const f of amb.fontes) {
     const b = f.b;
     if (b.t === 'usina' && b.comb > 0) {
@@ -4068,6 +4076,8 @@ function ambPasso(dt) {
       if (rnd() < dt * 3) ambFumaca(f.x + 8, f.y - 10, 'diesel');
     } else if (b.t === 'refinaria' && b.trab) {
       if (rnd() < dt * 3) ambFumaca(f.x + (rnd() - 0.5) * 30, f.y - 8, 'vapor');
+    } else if (b.t === 'casa' && ambEscuro() > 0.3 && casaOcupada(b)) {
+      if (rnd() < dt * 1.5) ambFumaca(b.x * T + 46.5, b.y * T + 17.5, 'fumaca');
     } else if (b.t === 'prensa' && b.trab && rnd() < dt * 2.2) {
       // faísca em rajadas curtas quando a prensa bate
       for (let i = 0; i < 4 + rnd() * 4; i++) {
@@ -4305,6 +4315,7 @@ function ambNoite(c, w, h) {
       if (t === 'poste') luz(f.x, f.y, 2.6 * T, 0.95);
       else if (t === 'hub') luz(f.x, f.y, 4 * T, 0.9);
       else if (t === 'armazem' || t === 'garagem' || t === 'central' || t === 'escritorio' || t === 'posto') luz(f.x, f.y, 2.4 * T, 0.6);
+      else if (t === 'casa' && casaOcupada(b)) luz(f.x, f.y, 1.8 * T, 0.7);
       else if (b.trab || (t === 'usina' && b.comb > 0) || (t === 'extrator' && b.sai && b.saiN < 4)) luz(f.x, f.y, 1.7 * T, 0.75);
     }
     for (const k of amb.cams) {
@@ -4337,6 +4348,181 @@ function ambNoite(c, w, h) {
   }
   for (const b of amb.bandos) if (b.est !== 'chao' && b.alt >= 0.15) desenharAves(c, b, e > 0.5);
 }
+
+// ---------- operários: casas dão gente, cada 4 máquinas precisam de 1 operário ----------
+const MAQ_OPER = ['extrator', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'refinaria', 'poco'];
+const OPER_CASA = 2, MAQ_POR_OPER = 4, OPER_BASE = 1, OPER_MAX_VIS = 60;
+function opers() {
+  let casas = 0, maq = 0;
+  for (const b of S.predios) { if (b.t === 'casa') casas++; else if (MAQ_OPER.includes(b.t)) maq++; }
+  const tem = OPER_BASE + casas * OPER_CASA;
+  return { casas, maq, tem, prec: Math.ceil(maq / MAQ_POR_OPER), vagasMaq: tem * MAQ_POR_OPER };
+}
+const PE_LIVRE = ['rua', 'portao', 'deslizante', 'esteira', 'cano', 'tunel', 'grade'];
+function pisavel(x, y) {
+  if (!dentro(x, y)) return false;
+  if (rio[y][x] && !(elev && elev[y][x])) return false;
+  const g = grid[y][x];
+  return !g || PE_LIVRE.includes(g.t);
+}
+// caminho a pé (casas) até encostar no prédio; sem caminho, vai reto
+function caminhoPe(x0, y0, alvo) {
+  const k = caixa(alvo), meta = new Set();
+  for (let y = k.y0 - 1; y <= k.y1 + 1; y++) for (let x = k.x0 - 1; x <= k.x1 + 1; x++) {
+    if (x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1) continue;
+    if ((x < k.x0 || x > k.x1) && (y < k.y0 || y > k.y1)) continue; // sem as quinas
+    if (pisavel(x, y)) meta.add(y * W + x);
+  }
+  const ini = y0 * W + x0;
+  if (!meta.size) return null;
+  if (meta.has(ini)) return [{ x: x0, y: y0 }];
+  const de = new Map([[ini, -1]]), fila = [ini];
+  for (let i = 0; i < fila.length && i < 14000; i++) {
+    const c = fila[i], cx = c % W, cy = (c - cx) / W;
+    for (let d = 0; d < 4; d++) {
+      const nx = cx + DX[d], ny = cy + DY[d], n = ny * W + nx;
+      if (!dentro(nx, ny) || de.has(n) || !pisavel(nx, ny)) continue;
+      de.set(n, c);
+      if (meta.has(n)) { const out = []; for (let p = n; p !== -1; p = de.get(p)) out.push({ x: p % W, y: Math.floor(p / W) }); return out.reverse(); }
+      fila.push(n);
+    }
+  }
+  return null;
+}
+amb.oper = []; amb.operT = 0;
+// lar de cada operário: 2 vagas por casa; o primeiro (encarregado) mora no Hub
+function lares() {
+  const out = [], hub = S.predios.find(b => b.t === 'hub');
+  if (hub) out.push(hub);
+  for (const b of S.predios) if (b.t === 'casa') out.push(b, b);
+  return out;
+}
+function ambPassoOper(dt) {
+  if (!S) return;
+  amb.operT -= Math.max(dt, 1 / 60);
+  const v = amb.vista;
+  if (amb.operT <= 0) {
+    amb.operT = 1;
+    const o = S.dev ? { prec: Math.ceil(S.predios.filter(b => MAQ_OPER.includes(b.t)).length / MAQ_POR_OPER) } : opers();
+    const ls = lares();
+    if (S.dev && ls[0] && ls[0].t === 'hub') while (ls.length < OPER_MAX_VIS) ls.push(ls[0]);
+    const livres = ls.slice();
+    amb.oper = amb.oper.filter(w => { const k = livres.indexOf(w.lar); if (k < 0) return false; livres.splice(k, 1); return true; });
+    const n = Math.min(OPER_MAX_VIS, o.prec, ls.length);
+    while (amb.oper.length > n) livres.push(amb.oper.pop().lar);
+    while (amb.oper.length < n && livres.length) {
+      const l = livres.shift(), c = centroDe(l);
+      amb.oper.push({ lar: l, x: c.x, y: c.y, st: 'casa', rota: null, ri: 0, alvo: null, t: 0, espera: rnd() * 12, fase: rnd() * 9, carrinho: rnd() < 0.3, ox: (rnd() - 0.5) * 12, oy: (rnd() - 0.5) * 12, ang: 0, alerta: false });
+    }
+    // máquina travada: o operário mais perto vai até ela
+    const maqs = S.predios.filter(b => MAQ_OPER.includes(b.t));
+    for (const b of maqs) if (b.trava && !amb.oper.some(w => w.alerta && w.alvo === b)) {
+      let melhor = null, md = Infinity; const c = centroDe(b);
+      for (const w of amb.oper) { if (w.alerta || w.st === 'casa') continue; const d = Math.hypot(w.x - c.x, w.y - c.y); if (d < md) { md = d; melhor = w; } }
+      if (melhor) { melhor.alerta = true; irPara(melhor, b); }
+    }
+    amb.maqs = maqs;
+  }
+  const trabalhar = ambEscuro() < 0.5;
+  const maqs = amb.maqs || [];
+  amb.oper.forEach((w, i) => {
+    if (w.alerta && (!w.alvo || !w.alvo.trava || !S.predios.includes(w.alvo))) { w.alerta = false; w.alvo = null; if (w.st === 'trab') w.t = 0; }
+    if (w.st === 'casa') {
+      if (!trabalhar && !w.alerta) return;
+      w.espera -= dt; if (w.espera > 0 && !w.alerta) return;
+      const m = proxMaq(w, i, maqs); if (!m) return;
+      const c = centroDe(w.lar); w.x = c.x; w.y = c.y;
+      irPara(w, m); return;
+    }
+    if (w.st === 'anda') {
+      const p = w.rota[w.ri];
+      if (!p) { chegou(w); return; }
+      const tx = p.x * T + T / 2 + w.ox, ty = p.y * T + T / 2 + w.oy, dx = tx - w.x, dy = ty - w.y, d = Math.hypot(dx, dy), s = (w.alerta ? 2 : 1.25) * T * dt;
+      if (d > 0.5) w.ang = Math.atan2(dy, dx);
+      if (d <= s) { w.x = tx; w.y = ty; w.ri++; } else { w.x += dx / d * s; w.y += dy / d * s; }
+      return;
+    }
+    if (w.st === 'trab') {
+      w.t -= dt;
+      if (w.alerta) return; // fica parado com o balão até destravar
+      if (!trabalhar) { w.espera = rnd() * 10; irPara(w, w.lar, true); return; }
+      if (w.t <= 0 || !S.predios.includes(w.alvo)) { const m = proxMaq(w, i, maqs); if (m) irPara(w, m); else w.t = 5; }
+    }
+  });
+}
+function proxMaq(w, i, maqs) {
+  if (!maqs.length) return null;
+  // cada operário cuida de um grupo de 4 máquinas e circula entre elas
+  const g = maqs.slice((i * MAQ_POR_OPER) % maqs.length, (i * MAQ_POR_OPER) % maqs.length + MAQ_POR_OPER);
+  const op = g.filter(m => m !== w.alvo);
+  return (op.length ? op : g)[Math.floor(rnd() * (op.length || g.length))];
+}
+function irPara(w, b, casa) {
+  const sx = Math.max(0, Math.min(W - 1, Math.floor(w.x / T))), sy = Math.max(0, Math.min(H - 1, Math.floor(w.y / T)));
+  const r = caminhoPe(sx, sy, b), c = centroDe(b);
+  w.rota = r || [{ x: Math.floor(c.x / T), y: Math.floor(c.y / T) }];
+  w.ri = 0; w.alvo = b; w.st = 'anda'; w.vaiCasa = !!casa;
+}
+function chegou(w) {
+  if (w.vaiCasa) { w.st = 'casa'; w.vaiCasa = false; w.alvo = null; return; }
+  const c = centroDe(w.alvo); w.ang = Math.atan2(c.y - w.y, c.x - w.x);
+  w.st = 'trab'; w.t = 6 + rnd() * 10;
+}
+
+function desenharCasa(c, b, tm) {
+  // 2×2 a partir da casa 0,0: quintal, casa com telhado de duas águas e chaminé
+  const h = b.x != null ? hash2(b.x, b.y, 5) : 0.1;
+  const telha = ['#b5452e', '#8a5a3a', '#55697a', '#9a3d3d'][Math.floor(h * 4)];
+  c.fillStyle = 'rgba(0,0,0,.25)'; rrect(c, -11, -9, 60, 59, 5); c.fill();
+  c.fillStyle = '#7fa35a'; rrect(c, -15, -15, 62, 62, 5); c.fill();
+  c.strokeStyle = '#d9cfb4'; c.lineWidth = 1.5; rrect(c, -14, -14, 60, 60, 5); c.stroke(); // cerquinha
+  c.fillStyle = '#bdb6a3'; c.fillRect(11, 32, 10, 15); // caminho até o portão
+  c.fillStyle = '#5f8a45'; for (const [x, y] of [[-8, 36], [36, 36], [-8, -8]]) { c.beginPath(); c.arc(x, y, 4.5, 0, Math.PI * 2); c.fill(); }
+  c.fillStyle = 'rgba(0,0,0,.3)'; rrect(c, -5, -3, 46, 38, 2); c.fill();
+  c.fillStyle = telha; rrect(c, -8, -7, 48, 39, 2); c.fill();
+  c.fillStyle = 'rgba(255,255,255,.14)'; c.fillRect(-8, -7, 48, 19); // água de cima mais clara
+  c.strokeStyle = 'rgba(0,0,0,.18)'; c.lineWidth = 1;
+  c.beginPath(); for (let y = -3; y < 32; y += 5) { c.moveTo(-8, y); c.lineTo(40, y); } c.stroke();
+  c.strokeStyle = 'rgba(40,20,10,.65)'; c.lineWidth = 2; c.beginPath(); c.moveTo(-8, 12.5); c.lineTo(40, 12.5); c.stroke(); // cumeeira
+  c.strokeStyle = '#1b1d1f'; c.lineWidth = 1.5; rrect(c, -8, -7, 48, 39, 2); c.stroke();
+  c.fillStyle = '#8d8579'; c.fillRect(27, -2, 7, 7); c.strokeRect(27, -2, 7, 7); // chaminé
+  c.fillStyle = '#3a3633'; c.fillRect(28.5, -0.5, 4, 4);
+  c.fillStyle = '#6b4a2e'; c.fillRect(13, 31, 6, 3); // porta
+}
+
+function desenharOperarios(c) {
+  const v = amb.vista;
+  for (const w of amb.oper) {
+    if (w.st === 'casa' || w.x < v.x0 - 20 || w.x > v.x1 + 20 || w.y < v.y0 - 20 || w.y > v.y1 + 20) continue;
+    const anda = w.st === 'anda', bal = anda ? Math.sin(amb.t * 10 + w.fase) : 0, mexe = w.st === 'trab' && !w.alerta ? Math.sin(amb.t * 6 + w.fase) : 0;
+    c.save(); c.translate(w.x, w.y); c.rotate(w.ang);
+    c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(1.5, 2, 5, 4, 0, 0, Math.PI * 2); c.fill();
+    if (w.carrinho && anda) {
+      c.fillStyle = '#7b8288'; c.strokeStyle = '#1b1d1f'; c.lineWidth = 1; c.fillRect(6, -4.5, 9, 9); c.strokeRect(6, -4.5, 9, 9);
+      c.fillStyle = '#a3acb4'; c.fillRect(7.5, -3, 6, 6);
+      c.strokeStyle = '#2a2d30'; c.beginPath(); c.moveTo(3, -3); c.lineTo(6, -3); c.moveTo(3, 3); c.lineTo(6, 3); c.stroke();
+    }
+    // braços, corpo de colete laranja e capacete amarelo
+    c.strokeStyle = '#d9a37a'; c.lineWidth = 1.8; c.lineCap = 'round';
+    const ab = w.carrinho && anda ? 0 : bal * 2.5;
+    c.beginPath(); c.moveTo(0, -3.6); c.lineTo(2.5 + ab + mexe * 1.5, -4.3); c.moveTo(0, 3.6); c.lineTo(2.5 - ab - mexe * 1.5, 4.3); c.stroke();
+    c.fillStyle = '#e8792b'; c.strokeStyle = '#1b1d1f'; c.lineWidth = 1;
+    c.beginPath(); c.ellipse(0, 0, 2.8, 4.4, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.fillStyle = '#f2ea8a'; c.fillRect(-0.6, -4.2, 1.2, 8.4); // faixa refletiva
+    c.fillStyle = '#f0b429'; c.beginPath(); c.arc(0.6, 0, 2.6, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.fillStyle = '#c99318'; c.fillRect(2.4, -1.2, 1.2, 2.4); // aba do capacete
+    c.restore();
+    if (w.alerta && w.st === 'trab') {
+      const y = w.y - 16 + Math.sin(amb.t * 5) * 1.5;
+      c.fillStyle = '#fff'; c.strokeStyle = '#e0533d'; c.lineWidth = 1.5;
+      rrect(c, w.x - 6, y - 7, 12, 13, 4); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(w.x - 2, y + 6); c.lineTo(w.x, y + 9); c.lineTo(w.x + 2, y + 6); c.fillStyle = '#fff'; c.fill();
+      c.fillStyle = '#e0533d'; c.fillRect(w.x - 1, y - 5, 2, 6); c.fillRect(w.x - 1, y + 2.2, 2, 2);
+    }
+  }
+}
+// casa com alguém dentro: luz na janela e fumaça na chaminé
+function casaOcupada(b) { return amb.oper.some(w => w.lar === b && w.st === 'casa'); }
 
 // ---------- interface ----------
 const $ = id => document.getElementById(id);
@@ -4395,7 +4581,7 @@ function desenharIcone(c, t, nv) {
   else if (TRES_DOIS(t)) desenharPredio(c, { t, dir: 1 }, 16, 10, 10, 0.1);
   else if (t === 'hub' || t === 'armazem' || t === 'escritorio') desenharPredio(c, { t, dir: 0, ativo: true }, 5, 5, 7.5, 0.1);
   else if (t === 'central') desenharPredio(c, { t, dir: 0 }, 3.5, 8.5, 5, 0.1);
-  else if (t === 'usina' || t === 'garagem' || t === 'hidro' || t === 'extrator' || t === 'poco' || t === 'posto' || t === 'gerador') desenharPredio(c, { t, dir: 0, carvao: 0, livres: 0 }, 8.5, 8.5, 15, 0.1);
+  else if (t === 'casa' || t === 'usina' || t === 'garagem' || t === 'hidro' || t === 'extrator' || t === 'poco' || t === 'posto' || t === 'gerador') desenharPredio(c, { t, dir: 0, carvao: 0, livres: 0 }, 8.5, 8.5, 15, 0.1);
   else desenharPredio(c, { t, dir: 0, itens: [], nv: nv || 1, modo: 'entrada' }, 16, 16, 30, 0.1);
 }
 function nomeOpcao(o) { return o.t === 'esteira' ? 'Esteira ' + NOME_EST[o.nv - 1].toLowerCase() : o.t === 'rua' ? 'Rua normal' : PREDIOS[o.t].nome; }
@@ -4478,6 +4664,7 @@ function girarAtual() {
 
 function atualizarHud() {
   $('dinheiro').textContent = reais(S.dinheiro);
+  { const o = opers(), el = $('operarios'); el.textContent = S.dev ? o.maq + ' / ∞' : o.maq + ' / ' + o.vagasMaq; el.classList.toggle('falta', !S.dev && o.maq >= o.vagasMaq); }
   const en = $('energia');
   document.querySelector('#marca small').textContent = S.dev ? 'Modo DEV · tudo liberado' : 'Galpão 1 · Lote industrial';
   if (S.dev) {
@@ -4695,6 +4882,11 @@ function infoEspecial(b, corpo) {
   const bsm = $('i-salvar-molde'); if (bsm) bsm.onclick = () => salvarMolde(b);
   const bd = $('i-dem-area'); if (bd) bd.onclick = () => { if (!b.armado) { b.armado = true; atualizarInfo(); } else demolirArea(b); };
 }
+function linhasOper() {
+  const o = opers(), mor = amb.oper.length;
+  return linhaBuf('Operários', o.tem + ' (' + o.casas + ' casa' + (o.casas === 1 ? '' : 's') + ' × 2 + 1 encarregado)') + linhaBuf('Máquinas', o.maq + ' / ' + o.vagasMaq) + linhaBuf('Trabalhando agora', amb.oper.filter(w => w.st !== 'casa').length + ' de ' + mor) +
+    '<p style="margin-top:6px">' + (o.maq >= o.vagasMaq ? 'Todas as vagas ocupadas: para pôr mais máquinas, construa outra casa.' : 'Ainda cabem ' + (o.vagasMaq - o.maq) + ' máquinas antes de precisar de outra casa.') + '</p>';
+}
 function linhaBuf(nome, v) { return `<div class="linha-buf"><span>${nome}</span><b>${v}</b></div>`; }
 // linha com o ícone do item ao lado do nome
 function linhaItem(k, nome, v) { return `<div class="linha-buf"><span class="com-ic">${icItem(k)}${nome}</span><b>${v}</b></div>`; }
@@ -4864,6 +5056,7 @@ function atualizarInfo() {
     html += ks.length ? ks.map(k => linhaItem(k, ITENS[k].nome + ' · ' + reais(ITENS[k].preco) + (ITENS[k].preco < 1 ? ',50' : ''), S.vendidos[k])).join('') : '<p>Nada vendido ainda.</p>';
     if (b.t === 'hub') html += '<p style="margin-top:8px">O Hub tem uma ligação da concessionária de ' + MW_HUB + ' MW de graça: alimenta as máquinas a até 3 casas e os postes a até 8.</p>' + linhaRede(b);
   }
+  if (b.t === 'casa') html += '<h3>Moradores</h3>' + linhasOper();
   if (b.t === 'posto') html += '<h3>Posto</h3>' + linhasPosto(b) + (dieselLigado() || S.diesel == null ? '' : `<p style="margin-top:6px">Os caminhões ainda não gastam diesel.</p>`);
   if (b.t === 'gerador') html += '<h3>Gerador</h3>' + linhasGerador(b) + linhaRede(b);
   if (b.t === 'central') {
@@ -5444,6 +5637,7 @@ function quadro(agora) {
     if (n >= 8) acum = 0;
   }
   ambPasso(pausado ? 0 : dt * vel);
+  ambPassoOper(pausado ? 0 : dt * vel);
   desenhar();
   desenharMini(relogio);
   ui += dt; autosave += dt;
