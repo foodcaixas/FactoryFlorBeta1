@@ -277,7 +277,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
     <section id="contrato" class="placa" aria-live="polite"></section>
     <div id="controles" class="placa">
       <button class="btn" id="b-pausa" aria-pressed="false" title="Pausar (espaço)">❚❚</button>
-      <button class="btn" id="b-vel" aria-pressed="false" title="Acelerar">2×</button>
+      <button class="btn" id="b-vel" aria-pressed="false" title="Velocidade do jogo (1×, 2× ou 4×)">1×</button>
       <button class="btn" id="b-desfazer" title="Desfazer (Ctrl+Z)" aria-label="Desfazer">↶</button>
       <button class="btn" id="b-alerta" title="Alertas" aria-pressed="false">⚠ 0</button>
       <button class="btn" id="b-pesq" title="Pesquisa (J)" aria-pressed="false">⚗ 0</button>
@@ -5449,7 +5449,8 @@ window.addEventListener('blur', () => teclas.clear());
 
 function alternarPausa() { pausado = !pausado; $('b-pausa').setAttribute('aria-pressed', pausado); $('b-pausa').textContent = pausado ? '▶' : '❚❚'; }
 $('b-pausa').onclick = alternarPausa;
-$('b-vel').onclick = () => { vel = vel === 1 ? 2 : 1; $('b-vel').setAttribute('aria-pressed', vel === 2); };
+// cada toque passa para a próxima velocidade: 1× → 2× → 4× → 1×; o botão mostra a velocidade atual
+$('b-vel').onclick = () => { vel = vel === 1 ? 2 : vel === 2 ? 4 : 1; $('b-vel').textContent = vel + '×'; $('b-vel').setAttribute('aria-pressed', vel > 1); };
 $('fechar-info').onclick = fecharInfo;
 
 function alternarPesq() {
@@ -5799,8 +5800,9 @@ function quadro(agora) {
   if (!pausado) {
     acum += dt * vel;
     let n = 0;
-    while (acum >= 1 / 60 && n++ < 8) { passo(1 / 60); acum -= 1 / 60; }
-    if (n >= 8) acum = 0;
+    // até 16 passos por quadro, para o 4× aguentar telas a 30 quadros por segundo
+    while (acum >= 1 / 60 && n++ < 16) { passo(1 / 60); acum -= 1 / 60; }
+    if (n >= 16) acum = 0;
   }
   ambPasso(pausado ? 0 : dt * vel);
   ambPassoOper(pausado ? 0 : dt * vel);
