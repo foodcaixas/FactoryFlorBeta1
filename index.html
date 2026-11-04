@@ -272,7 +272,7 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <div class="leitura"><span>Caixa</span><b id="dinheiro">R$ 0</b></div>
       <div class="leitura"><span>Faturamento</span><b id="taxa">R$ 0/min</b></div>
       <div class="leitura"><span>Energia</span><b id="energia">—</b></div>
-      <div class="leitura" title="Máquinas em uso / vagas: cada 4 máquinas precisam de 1 operário e cada casa traz 2."><span>Máquinas</span><b id="operarios">—</b></div>
+      <div class="leitura" id="leit-oper" hidden title="Máquinas em uso / vagas: cada 4 máquinas precisam de 1 operário e cada casa traz 2."><span>Máquinas</span><b id="operarios">—</b></div>
     </div>
     <section id="contrato" class="placa" aria-live="polite"></section>
     <div id="controles" class="placa">
@@ -375,7 +375,6 @@ button:focus-visible { outline: 2px solid var(--seguranca); outline-offset: 2px;
       <p>Forno Industrial (tecla /, liberado na pesquisa de Aço): ocupa 3×2 casas e tem duas entradas nos cantos de trás, para assar o que combina materiais. O aço é feito nele: leve lingotes de ferro e carvão por uma entrada cada, ou juntos pela mesma. O forno comum não faz mais aço.</p>
       <p>Indústria de Defesa (Pesquisa, depois de Placa de circuito): a Prensa faz peças usinadas (de aço), estojos metálicos (de lingote de cobre) e pólvora (de minério de enxofre, as jazidas amarelas, direto do extrator) e a Montadora faz componentes de armas e munição. Entregue na Central Militar (tecla [; R gira), pelos 3 portões com seta ou de caminhão. Ela paga mais que o Hub e traz contratos próprios: atrasar custa uma multa leve e o bônus, mas o contrato continua aberto.</p>
       <p>Equipamento militar (Pesquisa, depois de Indústria de Defesa e Petróleo): Proteção individual libera chapa blindada (Prensa, 3 aço), capacete e colete; Comunicações libera rádio de campanha e mira óptica; Motorização libera borracha (Refinaria), pneu (Prensa), motor diesel e gerador de campanha; Reconhecimento aéreo libera o drone. A Central Militar compra munição, componentes de armas, capacete, colete, rádio, gerador e drone.</p>
-      <p>Operários: cada 4 máquinas de produção (extrator, fornos, prensa, trefila, montadora, refinaria e extrator de petróleo) precisam de 1 operário. Você começa com 1 encarregado, que dá para 4 máquinas; cada Casa (tecla ') traz mais 2 operários, ou seja, mais 8 máquinas. O contador Máquinas no topo mostra quantas você tem e quantas cabem. De dia os operários andam até as máquinas; quando uma trava, um deles vai até ela e fica com um balão de "!". À noite voltam para casa.</p>
       <p>Ambiente: o dia passa em uns 9 minutos de jogo. À noite a tela escurece e só ficam claros os postes, o Hub, as máquinas trabalhando e os faróis dos caminhões. Máquina que solta fumaça, vapor ou faísca está trabalhando; parada, fica quieta. Pássaros pousam nos cantos livres e fogem dos caminhões, barcos descem o rio e vacas e cavalos pastam nos lotes à venda até você comprar. Nada disso muda o jogo e dá para desligar em Configurações.</p>
       <div class="acoes">
         <button class="btn perigo" id="b-novo">Novo jogo</button>
@@ -553,8 +552,8 @@ const PREDIOS = {
   ponte:     { nome: 'Ponte', preco: 25, desc: 'Rua elevada. Passa por cima de esteiras (os itens continuam correndo embaixo) e se liga às ruas normais pelas pontas.' },
   rua:       { nome: 'Rua', preco: 5, desc: 'Asfalto para o caminhão. A doca e o destino precisam encostar numa rua, e as duas pontas precisam estar ligadas.' },
 };
-const TECLA = { hub: 'H', esteira: '1', extrator: '2', divisor: '3', forno: '4', prensa: '5', trefila: '6', montadora: '7', unificador: '8', doca: '9', recepcao: '0', conteiner: 'C', armazem: 'G', rua: 'E', ponte: 'P', filtro: 'F', tunel: 'T', poste: 'L', usina: 'U', garagem: 'K', casa: "'", hidro: 'Y', bomba: 'B', cano: 'N', cerca: 'Z', poco: '-', refinaria: '=', docaf: '.', escritorio: ',', posto: ';', gerador: ']', central: '[', fornoind: '/' };
-const ORDEM = ['hub', 'esteira', 'extrator', 'divisor', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'unificador', 'filtro', 'poste', 'bomba', 'poco', 'rua', 'doca', 'garagem', 'casa', 'recepcao', 'conteiner', 'armazem', 'escritorio', 'central', 'cerca'];
+const TECLA = { hub: 'H', esteira: '1', extrator: '2', divisor: '3', forno: '4', prensa: '5', trefila: '6', montadora: '7', unificador: '8', doca: '9', recepcao: '0', conteiner: 'C', armazem: 'G', rua: 'E', ponte: 'P', filtro: 'F', tunel: 'T', poste: 'L', usina: 'U', garagem: 'K', hidro: 'Y', bomba: 'B', cano: 'N', cerca: 'Z', poco: '-', refinaria: '=', docaf: '.', escritorio: ',', posto: ';', gerador: ']', central: '[', fornoind: '/' };
+const ORDEM = ['hub', 'esteira', 'extrator', 'divisor', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'unificador', 'filtro', 'poste', 'bomba', 'poco', 'rua', 'doca', 'garagem', 'recepcao', 'conteiner', 'armazem', 'escritorio', 'central', 'cerca'];
 // botões da bancada que abrem um menu com variações
 const GRUPOS = { esteira: ['esteira', 'tunel'], poste: ['poste', 'usina', 'hidro'], bomba: ['bomba', 'cano'], poco: ['poco', 'refinaria', 'docaf', 'posto', 'gerador', 'cano'], rua: ['rua', 'ponte'], cerca: ['cerca', 'barreira', 'portao', 'deslizante', 'grade'] };
 const OPCOES = {
@@ -1052,6 +1051,13 @@ function carregar(txt) {
     for (const t of INICIAIS) if (!S.liberados.includes(t) && !TRAVADOS_PESQ.includes(t)) S.liberados.push(t);
     gerarJazidas(S.seed); gerarRio(S.seed); gerarExpansao(S.seed);
     migrarHub();
+    if (!OPERARIOS_ATIVOS) {
+      const casas = S.predios.filter(b => b.t === 'casa');
+      if (casas.length) {
+        S.predios = S.predios.filter(b => b.t !== 'casa'); S.dinheiro += casas.length * PREDIOS.casa.preco;
+        setTimeout(() => avisar('Os operários saíram do jogo: ' + casas.length + ' casa(s) foram demolidas e ' + reais(casas.length * PREDIOS.casa.preco) + ' voltaram para o caixa. Não há mais limite de máquinas.', true, 7000), 900);
+      }
+    }
     for (const b of S.predios) {
       if (ehDoca(b) && !b.cams) { b.cams = [b.cam || novoCam()]; delete b.cam; }
       if (b.t === 'esteira' && !b.nv) b.nv = 1;
@@ -2630,7 +2636,7 @@ function construir(t, x, y, dir) {
   if (t === 'bomba' && !beiraRio(cel)) { avisar("A bomba d'água precisa encostar no rio.", false, 2500); return false; }
   const p = PREDIOS[t];
   if (!S.liberados.includes(t)) { avisar(p.nome + ' ainda está bloqueado.'); return false; }
-  if (MAQ_OPER.includes(t) && !S.dev) { const o = opers(); if (o.maq + 1 > o.vagasMaq) { avisar('Faltam operários: cada 4 máquinas precisam de 1 operário. Construa uma Casa (tecla \') para trazer mais 2.', false, 3500); return false; } }
+  if (OPERARIOS_ATIVOS && MAQ_OPER.includes(t) && !S.dev) { const o = opers(); if (o.maq + 1 > o.vagasMaq) { avisar('Faltam operários: cada 4 máquinas precisam de 1 operário. Construa uma Casa (tecla \') para trazer mais 2.', false, 3500); return false; } }
   if (t === 'hub' && S.predios.some(o => o.t === 'hub')) { avisar('Só existe um Hub central. Para mudar de lugar, demola o atual primeiro.'); return false; }
   const preco = precoDe(t, nivelEst);
   if (S.dinheiro < preco) { avisar('Falta dinheiro: ' + p.nome + ' custa ' + reais(preco) + '.'); return false; }
@@ -4516,6 +4522,9 @@ function ambNoite(c, w, h) {
 }
 
 // ---------- operários: casas dão gente, cada 4 máquinas precisam de 1 operário ----------
+// operários desligados a pedido do dono (2026-11-04): sem casas, sem limite de máquinas e sem gente andando.
+// O código fica aqui; para religar, troque para true e devolva 'casa' para ORDEM e TECLA.
+const OPERARIOS_ATIVOS = false;
 const MAQ_OPER = ['extrator', 'forno', 'fornoind', 'prensa', 'trefila', 'montadora', 'refinaria', 'poco'];
 const OPER_CASA = 2, MAQ_POR_OPER = 4, OPER_BASE = 1, OPER_MAX_VIS = 60;
 function opers() {
@@ -4564,7 +4573,7 @@ function lares() {
   return out;
 }
 function ambPassoOper(dt) {
-  if (!S) return;
+  if (!S || !OPERARIOS_ATIVOS) { amb.oper.length = 0; return; }
   amb.operT -= Math.max(dt, 1 / 60);
   const v = amb.vista;
   if (amb.operT <= 0) {
@@ -4657,6 +4666,7 @@ function desenharCasa(c, b, tm) {
 }
 
 function desenharOperarios(c) {
+  if (!OPERARIOS_ATIVOS) return;
   const v = amb.vista;
   for (const w of amb.oper) {
     if (w.st === 'casa' || w.x < v.x0 - 20 || w.x > v.x1 + 20 || w.y < v.y0 - 20 || w.y > v.y1 + 20) continue;
