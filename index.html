@@ -1711,8 +1711,11 @@ function andar(b, c, dt) {
   c.bloq = false;
   const jx = c.rota[Math.min(i + 1, n)];
   if (c.p < n && jx) {
+    // compara com a direção em que o caminhão VAI andar (da casa atual para a próxima), não com para onde ele está virado:
+    // quem acabou de descarregar no fim da rua ainda está virado para a parede e ia esperar o caminhão de trás, que esperava por ele
+    const at = c.rota[i], rumo = at && (at.x !== jx.x || at.y !== jx.y) ? Math.atan2(jx.y - at.y, jx.x - at.x) : (c.ang || 0);
     for (const o of ocupCam.get(jx.y * W + jx.x) || []) {
-      if (o !== c && (!c.pos || c.pos.x !== jx.x || c.pos.y !== jx.y) && Math.abs(difAng(o.ang || 0, c.ang || 0)) < 1.2) { c.fila = true; return false; }
+      if (o !== c && (!c.pos || c.pos.x !== jx.x || c.pos.y !== jx.y) && Math.abs(difAng(o.ang || 0, rumo)) < 1.2) { c.fila = true; return false; }
     }
   }
   c.fila = false;
