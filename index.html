@@ -3214,6 +3214,79 @@ function tuboDe(fl) {
   }
   return tuboTingido[fl];
 }
+// conectores padrão: bocas de esteira desenhadas pelo jogo por cima dos sprites que não têm boca no lugar certo.
+// cada porta: casa da máquina (x, y), lado d (para fora) e se é saída
+const BOCAS_TIPOS = ['montadora', 'fornoind', 'armazem', 'galpao', 'torno', 'extrator', 'refinaria'];
+function portasEsteira(b) {
+  if (b.x == null || !BOCAS_TIPOS.includes(b.t)) return [];
+  const d = b.dir || 0, tras = (d + 2) % 4, out = [];
+  if (b.t === 'montadora' || b.t === 'fornoind') {
+    for (const q of celulas(b)) {
+      if (q.a === 0 && q.l !== 0) out.push({ x: q.x, y: q.y, d: tras, sai: false });
+      if (q.a === 1 && q.l === 0) out.push({ x: q.x, y: q.y, d, sai: true });
+    }
+  } else if (b.t === 'refinaria') {
+    const q = celulas(b).find(q => q.a === 1 && q.l === 0), v = q && grid && dentro(q.x + DX[d], q.y + DY[d]) ? grid[q.y + DY[d]][q.x + DX[d]] : null;
+    const r = b.rec != null && RECEITAS.refinaria[b.rec];
+    if (q && !(v && v.t === 'cano') && !(r && r.saiFluido)) out.push({ x: q.x, y: q.y, d, sai: true });
+  } else if (b.t === 'armazem') {
+    for (const q of celulas(b)) {
+      if (q.a === 0) out.push({ x: q.x, y: q.y, d: tras, sai: false });
+      if (q.a === 3) out.push({ x: q.x, y: q.y, d, sai: true });
+    }
+  } else if (b.t === 'galpao') {
+    for (const q of celulas(b)) if (q.a === 0) out.push({ x: q.x, y: q.y, d: tras, sai: false });
+  } else if (b.t === 'torno') {
+    out.push({ x: b.x, y: b.y, d: tras, sai: false }, { x: b.x + DX[d], y: b.y + DY[d], d, sai: true });
+  } else if (b.t === 'extrator') {
+    const o = saidaDe(b);
+    out.push({ x: o.x - DX[d], y: o.y - DY[d], d, sai: true });
+  }
+  return out;
+}
+// boca de 60% da casa (a faixa escura da esteira), na borda da casa, com moldura e faixa zebrada
+// forno e prensa já trazem a boca no sprite: entram só na dica de construção
+function bocasSprite(b) {
+  if (b.x == null || (b.t !== 'forno' && b.t !== 'prensa')) return [];
+  const d = b.dir || 0;
+  return [{ x: b.x, y: b.y, d: (d + 2) % 4, sai: false }, { x: b.x + DX[d], y: b.y + DY[d], d, sai: true }];
+}
+function desenharBoca(c, p) {
+  c.save(); c.translate(p.x * T + T / 2, p.y * T + T / 2); c.rotate(p.d * Math.PI / 2);
+  const x0 = 6, x1 = 16, hw = 11;
+  c.fillStyle = '#1a1a1d'; c.fillRect(x0 - 1, -hw - 1, x1 - x0 + 1, hw * 2 + 2);
+  // trilhos de cima e de baixo, cinza com faixa amarela, como a moldura das máquinas
+  c.fillStyle = '#3b3f46'; c.fillRect(x0, -hw, x1 - x0, hw * 2);
+  c.fillStyle = '#f5c518'; c.fillRect(x0 + 1, -hw + 0.6, x1 - x0 - 1, 1.4); c.fillRect(x0 + 1, hw - 2, x1 - x0 - 1, 1.4);
+  // borracha da esteira entrando na máquina, com a boca escura no fundo
+  c.fillStyle = '#2a2a2e'; c.fillRect(x0 + 2, -8, x1 - x0 - 2, 16);
+  c.fillStyle = '#111214'; c.fillRect(x0 + 2, -8, 2.5, 16);
+  c.strokeStyle = '#6a7078'; c.lineWidth = 1.3; c.lineJoin = 'round';
+  const k = p.sai ? 1 : -1, cx = 11.5;
+  c.beginPath(); c.moveTo(cx - 2 * k, -5); c.lineTo(cx + 1.5 * k, 0); c.lineTo(cx - 2 * k, 5); c.stroke();
+  c.restore();
+}
+// com a esteira na mão: bocas livres piscam do lado de fora (verde = entra, amarelo = sai)
+function dicaBoca(c, p, tm) {
+  const nx = p.x + DX[p.d], ny = p.y + DY[p.d];
+  if (!dentro(nx, ny) || grid[ny][nx]) return;
+  c.save(); c.translate(nx * T + T / 2, ny * T + T / 2); c.rotate(p.d * Math.PI / 2);
+  c.globalAlpha = 0.55 + Math.sin(tm * 5) * 0.3;
+  c.fillStyle = p.sai ? '#f5c518' : '#7cc47f'; c.strokeStyle = '#1a1a1d'; c.lineWidth = 1.2;
+  c.beginPath();
+  if (p.sai) { c.moveTo(4, 0); c.lineTo(-4, -6); c.lineTo(-4, 6); } else { c.moveTo(-6, 0); c.lineTo(2, -6); c.lineTo(2, 6); }
+  c.closePath(); c.fill(); c.stroke();
+  c.restore();
+}
+// flange onde o cano encosta numa máquina: placa na borda com parafusos e anel na cor do fluido
+function desenharFlange(c, fl) {
+  const x0 = 11, x1 = 16;
+  c.fillStyle = '#1a1a1d'; c.fillRect(x0 - 0.8, -8.8, x1 - x0 + 0.8, 17.6);
+  c.fillStyle = '#5a6068'; c.fillRect(x0, -8, x1 - x0, 16);
+  c.fillStyle = '#b8bec4'; c.fillRect(x0 + 0.8, -8, 1.2, 16);
+  c.fillStyle = fl ? TUBO_TINTA[fl] : '#f5c518'; c.fillRect(x0 - 2.5, -5.5, 2, 11);
+  c.fillStyle = '#d6dadd'; for (const y of [-6, 6]) { c.beginPath(); c.arc(x0 + 3, y, 1.1, 0, Math.PI * 2); c.fill(); }
+}
 function setaSaida(c, h) {
   c.fillStyle = '#f0b429';
   c.beginPath(); c.moveTo(h - 1, 0); c.lineTo(h - 7, -5); c.lineTo(h - 7, 5); c.closePath(); c.fill();
@@ -3698,6 +3771,11 @@ function desenharPredio(c, b, cx, cy, s, tm) {
       const [cel, giro] = PECA_RUA[lig.reduce((a, l, d) => a | (l ? 1 << d : 0), 0)];
       c.rotate(giro * Math.PI / 2);
       if (imgTubo.complete && imgTubo.width) c.drawImage(tuboDe(b._fl), cel * TUBO_CEL, 0, TUBO_CEL, TUBO_CEL, -16, -16, 32, 32);
+      // flange na borda de cada máquina ligada (o cano de cano para cano não leva)
+      if (b.x != null && grid) {
+        c.rotate(-giro * Math.PI / 2);
+        for (let d = 0; d < 4; d++) { const q = lig[d] && viz(b, d); if (q && q.t !== 'cano') { c.save(); c.rotate(d * Math.PI / 2); desenharFlange(c, b._fl); c.restore(); } }
+      }
       break;
     }
     case 'garagem': {
@@ -4073,6 +4151,8 @@ function desenhar() {
     ctx.fillRect(b.x * T + 2, b.y * T + 2, T - 4, T - 4);
   }
   for (const b of S.predios) if (b.t !== 'esteira' && b.t !== 'rua' && vis(b)) desenharPredio(ctx, b, b.x * T + T / 2, b.y * T + T / 2, T, tm);
+  for (const b of S.predios) if (BOCAS_TIPOS.includes(b.t) && vis(b)) for (const p of portasEsteira(b)) desenharBoca(ctx, p);
+  if (ferr === 'esteira') for (const b of S.predios) if (BOCAS_TIPOS.includes(b.t) || DUPLA(b.t)) if (vis(b)) for (const p of portasEsteira(b).concat(bocasSprite(b))) dicaBoca(ctx, p, tm);
   // alertas: máquina travada e esteira encostada num lado que não recebe
   for (const b of S.predios) if (vis(b)) {
     if (b.trava) {
